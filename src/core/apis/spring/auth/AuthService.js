@@ -1,18 +1,15 @@
-import AuthRepository from "./AuthRepository"
+import axios from "axios";
 
 export default class AuthService {
+  constructor(credentials) {
+    this.credentials = credentials;
+  }
 
-    #repo
-    #credentials
+  login() {
+    return axios.post("import.meta.env.VITE_API_ENDPOINT/login", this.credentials);
+  }
 
-    constructor(credentials) {
-        this.#repo = new AuthRepository()
-        this.#credentials = credentials
-    }
-
-    async login() {
-        const response = await this.#repo.login(this.#credentials)
-        return response
-    }
-
+  googleLogin(googleIdToken) {
+    return axios.post("import.meta.env.VITE_GOOGLE_ENDPOINT", { token: googleIdToken });
+  }
 }

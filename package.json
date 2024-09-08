@@ -12,6 +12,7 @@
     "@vitest/coverage-v8": "^2.0.5",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.7",
+    "google-auth-library": "^9.14.1",
     "pinia": "^2.2.2",
     "postcss": "^8.4.45",
     "tdoh": "file:",

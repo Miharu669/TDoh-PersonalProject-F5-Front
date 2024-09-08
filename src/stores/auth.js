@@ -12,14 +12,19 @@ export const useAuthStore = defineStore("auth", () => {
   });
 
   function login(username, password) {
-
     const credentials = new Credentials(username, password)
     const service = new AuthService(credentials)
     return service.login()
+  }
 
-}
+  function googleLogin(googleIdToken) {
+    const service = new AuthService()
+    return service.googleLogin(googleIdToken)
+  }
+
   return {
     user,
-    login
+    login,
+    googleLogin
   };
 });
