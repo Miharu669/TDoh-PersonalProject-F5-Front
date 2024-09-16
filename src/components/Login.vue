@@ -142,18 +142,19 @@ const signInWithGoogle = () => {
   googleSdkLoaded((google) => {
     google.accounts.oauth2
       .initCodeClient({
-        client_id: "import.meta.env.VITE_GOOGLE_CLIENT_ID",
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,  
         scope: "email",
-        rediret_uri: "import.meta.env.VITE_GOOGLE__ENDPOINT",
+        redirect_uri: import.meta.env.VITE_GOOGLE_ENDPOINT, 
         callback: (response) => {
           if (response.code) {
             fetchUserDataFromGoogle(response.code);
           }
         },
       })
-      .requestCode();
+      .requestCode(); 
   });
 };
+
 
 async function login() {
   const usernameValue = username.value.trim();
