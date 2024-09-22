@@ -1,15 +1,18 @@
-import axios from "axios";
+import apiClient from "./../../axiosConfig";
 
-export default class AuthService {
+
+class AuthService {
   constructor(credentials) {
     this.credentials = credentials;
   }
 
-  login() {
-    return axios.post("import.meta.env.VITE_API_ENDPOINT/login", this.credentials);
+  async login() {
+    return apiClient.post("/login", this.credentials);
   }
 
   googleLogin(googleIdToken) {
-    return axios.post("import.meta.env.VITE_GOOGLE_ENDPOINT", { token: googleIdToken });
+    return apiClient.post("/google-login", { idToken: googleIdToken });
   }
 }
+
+export default AuthService;
