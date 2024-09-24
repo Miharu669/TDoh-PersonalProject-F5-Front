@@ -1,17 +1,16 @@
-import apiClient from "./../../axiosConfig";
-
+import AuthRepository from "./AuthRepository";
 
 class AuthService {
-  constructor(credentials) {
-    this.credentials = credentials;
+  constructor() {
+    this.repository = new AuthRepository();
   }
 
-  async login() {
-    return apiClient.post("/login", this.credentials);
+  login(username, password) {
+    return this.repository.login(username, password);
   }
 
-  googleLogin(googleIdToken) {
-    return apiClient.post("/google-login", { idToken: googleIdToken });
+  register(params) {
+    return this.repository.register(params);
   }
 }
 

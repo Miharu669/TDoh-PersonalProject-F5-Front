@@ -1,3 +1,4 @@
+
 <template>
   <div
     class="min-h-screen bg-gradient-to-r from-cyan-600 to-white py-6 flex flex-col justify-center sm:py-12"
@@ -17,7 +18,7 @@
             <div
               class="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7"
             >
-              <form class="mt-4" @submit.prevent="login">
+              <form class="mt-4" @submit.prevent="handleLogin">
                 <div class="relative">
                   <input
                     v-model="username"
@@ -57,7 +58,8 @@
                   {{ textAlert }}
                 </div>
               </form>
-              <div  class="w-full flex justify-center">
+              
+              <div class="w-full flex justify-center">
                 <button @click="signInWithGoogle"
                   class="flex items-center bg-white border border-gray-300 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
@@ -71,7 +73,6 @@
                     version="1.1"
                   >
                     <title>Google-color</title>
-                    <desc>Created with Sketch.</desc>
                     <defs></defs>
                     <g
                       id="Icons"
@@ -124,76 +125,45 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth.js";
-import { googleSdkLoaded } from "vue3-google-login";
+    import { ref } from "vue";
+    import { useRoute, useRouter } from "vue-router";
+    import { useAuthStore } from "@/stores/auth.js";
 
-const username = ref("");
-const password = ref("");
-const textAlert = ref("");
+    const username = ref("");
+    const password = ref("");
+    const textAlert = ref("");
 
-const route = useRoute();
-const router = useRouter();
+    const route = useRoute();
+    const router = useRouter();
 
-const store = useAuthStore();
+    const store = useAuthStore();
 
-const signInWithGoogle = () => {
-  googleSdkLoaded((google) => {
-    google.accounts.oauth2
-      .initCodeClient({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,  
-        scope: "email",
-        redirect_uri: import.meta.env.VITE_GOOGLE_ENDPOINT, 
-        callback: (response) => {
-          if (response.code) {
-            fetchUserDataFromGoogle(response.code);
+    
+    async function handleLogin() {
+      const usernameValue = username.value.trim();
+      const passwordValue = password.value.trim();
+
+      if (usernameValue && passwordValue) {
+        try {
+          const response = await store.login(usernameValue, passwordValue);
+
+          if (response.message === "Logged") {
+            router.push(route.query.redirect || "/tasks"); 
+          } else {
+            textAlert.value = response.data || "Incorrect username or password!";
           }
-        },
-      })
-      .requestCode(); 
-  });
-};
-
-
-async function login() {
-  const usernameValue = username.value.trim();
-  const passwordValue = password.value.trim();
-
-  if (usernameValue && passwordValue) {
-    try {
-      const response = await store.login(usernameValue, passwordValue);
-
-      if (response.message === "Logged") {
-        Object.assign(store.user, {
-          id: response.id,
-          isAuthenticated: true,
-          username: response.username,
-        });
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: response.id,
-            username: response.username,
-            isAuthenticated: true,
-          })
-        );
-
-        localStorage.setItem(
-          "token",
-          btoa(`${usernameValue}:${passwordValue}`)
-        );
-
-        router.push(route.query.redirect || "/funsiona");
+        } catch (error) {
+          console.error('Error during login:', error);
+          textAlert.value = "Error trying to login, please try again.";
+        }
       } else {
-        textAlert.value = "Incorrect username or password!";
+        textAlert.value = "Username or Password cannot be empty!";
       }
-    } catch (error) {
-      textAlert.value = "Error trying to login, please try again.";
     }
-  } else {
-    textAlert.value = "Username or Password cannot be empty!";
-  }
-}
-</script>
+
+   
+    function signInWithGoogle() {
+      const baseURL = import.meta.env.VITE_API_ENDPOINT.replace('/api/v1', '');
+      window.location.href = `${baseURL}/oauth2/authorization/google`;
+    }
+    </script>
