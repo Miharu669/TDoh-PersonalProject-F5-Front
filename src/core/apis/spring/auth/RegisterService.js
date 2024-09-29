@@ -1,6 +1,6 @@
 import AuthRepository from "./AuthRepository";
 
-export default class AuthService {
+export default class RegisterService {
   #repo;
   #credentials;
 
@@ -9,8 +9,8 @@ export default class AuthService {
     this.#credentials = credentials;
   }
 
-  async login() {
-    const response = await this.#repo.login(this.#credentials);
+  async register() {
+    const response = await this.#repo.register(this.#credentials);
     return response;
   }
 }

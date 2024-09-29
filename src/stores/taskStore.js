@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import apiClient from '@/core/apis/axiosConfig';
+import axios from 'axios';
 
 export const useTaskStore = defineStore('taskStore', () => {
   const tasks = ref([]);
@@ -14,33 +14,34 @@ export const useTaskStore = defineStore('taskStore', () => {
   const minitasks = ref([]);
   const minitask = ref(null);
 
+  const axiosInstance = axios.create({
+    baseURL: import.meta.env.VITE_API_ENDPOINT,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
   const getTasks = async () => {
     loading.value = true;
     error.value = null;
     try {
-      console.log('Making request to /tasks without auth');
-      const response = await apiClient.get('/tasks', {
-        headers: {
-          Authorization: ''  // Clear auth header
-        }
-      });
+      const response = await axiosInstance.get('/tasks');
       tasks.value = response.data;
     } catch (err) {
-      error.value = err.message || 'Error fetching tasks';
+      error.value = err.response?.data?.message || 'Error fetching tasks';
     } finally {
       loading.value = false;
     }
   };
-  
 
   const getTask = async (taskId) => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.get(`/tasks/${taskId}`);
+      const response = await axiosInstance.get(`/tasks/${taskId}`);
       task.value = response.data;
     } catch (err) {
-      error.value = err.message || 'Error fetching task';
+      error.value = err.response?.data?.message || 'Error fetching task';
     } finally {
       loading.value = false;
     }
@@ -50,10 +51,10 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.post('/tasks', taskData);
+      const response = await axiosInstance.post('/tasks', taskData);
       tasks.value.push(response.data);
     } catch (err) {
-      error.value = err.message || 'Error creating task';
+      error.value = err.response?.data?.message || 'Error creating task';
     } finally {
       loading.value = false;
     }
@@ -63,13 +64,13 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.put(`/tasks/${taskId}`, taskData);
+      const response = await axiosInstance.put(`/tasks/${taskId}`, taskData);
       const index = tasks.value.findIndex((task) => task.id === taskId);
       if (index !== -1) {
         tasks.value[index] = response.data;
       }
     } catch (err) {
-      error.value = err.message || 'Error updating task';
+      error.value = err.response?.data?.message || 'Error updating task';
     } finally {
       loading.value = false;
     }
@@ -79,10 +80,10 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      await apiClient.delete(`/tasks/${taskId}`);
+      await axiosInstance.delete(`/tasks/${taskId}`);
       tasks.value = tasks.value.filter((task) => task.id !== taskId);
     } catch (err) {
-      error.value = err.message || 'Error deleting task';
+      error.value = err.response?.data?.message || 'Error deleting task';
     } finally {
       loading.value = false;
     }
@@ -92,10 +93,10 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.get(`/tasks/${taskId}/subtasks`);
+      const response = await axiosInstance.get(`/tasks/${taskId}/subtasks`);
       subtasks.value = response.data;
     } catch (err) {
-      error.value = err.message || 'Error fetching subtasks';
+      error.value = err.response?.data?.message || 'Error fetching subtasks';
     } finally {
       loading.value = false;
     }
@@ -105,10 +106,10 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.post(`/tasks/${taskId}/subtasks`, subtaskData);
+      const response = await axiosInstance.post(`/tasks/${taskId}/subtasks`, subtaskData);
       subtasks.value.push(response.data);
     } catch (err) {
-      error.value = err.message || 'Error creating subtask';
+      error.value = err.response?.data?.message || 'Error creating subtask';
     } finally {
       loading.value = false;
     }
@@ -118,13 +119,13 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.put(`/subtasks/${subtaskId}`, subtaskData);
+      const response = await axiosInstance.put(`/subtasks/${subtaskId}`, subtaskData);
       const index = subtasks.value.findIndex((subtask) => subtask.id === subtaskId);
       if (index !== -1) {
         subtasks.value[index] = response.data;
       }
     } catch (err) {
-      error.value = err.message || 'Error updating subtask';
+      error.value = err.response?.data?.message || 'Error updating subtask';
     } finally {
       loading.value = false;
     }
@@ -134,10 +135,10 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      await apiClient.delete(`/subtasks/${subtaskId}`);
+      await axiosInstance.delete(`/subtasks/${subtaskId}`);
       subtasks.value = subtasks.value.filter((subtask) => subtask.id !== subtaskId);
     } catch (err) {
-      error.value = err.message || 'Error deleting subtask';
+      error.value = err.response?.data?.message || 'Error deleting subtask';
     } finally {
       loading.value = false;
     }
@@ -147,10 +148,10 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.get(`/subtasks/${subtaskId}/minitasks`);
+      const response = await axiosInstance.get(`/subtasks/${subtaskId}/minitasks`);
       minitasks.value = response.data;
     } catch (err) {
-      error.value = err.message || 'Error fetching mini tasks';
+      error.value = err.response?.data?.message || 'Error fetching mini tasks';
     } finally {
       loading.value = false;
     }
@@ -160,10 +161,10 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.post(`/subtasks/${subtaskId}/minitasks`, minitaskData);
+      const response = await axiosInstance.post(`/subtasks/${subtaskId}/minitasks`, minitaskData);
       minitasks.value.push(response.data);
     } catch (err) {
-      error.value = err.message || 'Error creating mini task';
+      error.value = err.response?.data?.message || 'Error creating mini task';
     } finally {
       loading.value = false;
     }
@@ -173,13 +174,13 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiClient.put(`/minitasks/${minitaskId}`, minitaskData);
+      const response = await axiosInstance.put(`/minitasks/${minitaskId}`, minitaskData);
       const index = minitasks.value.findIndex((minitask) => minitask.id === minitaskId);
       if (index !== -1) {
         minitasks.value[index] = response.data;
       }
     } catch (err) {
-      error.value = err.message || 'Error updating mini task';
+      error.value = err.response?.data?.message || 'Error updating mini task';
     } finally {
       loading.value = false;
     }
@@ -189,10 +190,10 @@ export const useTaskStore = defineStore('taskStore', () => {
     loading.value = true;
     error.value = null;
     try {
-      await apiClient.delete(`/minitasks/${minitaskId}`);
+      await axiosInstance.delete(`/minitasks/${minitaskId}`);
       minitasks.value = minitasks.value.filter((minitask) => minitask.id !== minitaskId);
     } catch (err) {
-      error.value = err.message || 'Error deleting mini task';
+      error.value = err.response?.data?.message || 'Error deleting mini task';
     } finally {
       loading.value = false;
     }
