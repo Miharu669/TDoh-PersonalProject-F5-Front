@@ -10,6 +10,14 @@ export default defineConfig({
       host: 'localhost',
       port: 5173,
     },
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_ENDPOINT, 
+        changeOrigin: true,
+        secure: false, 
+        rewrite: (path) => path.replace(/^\/api/, '/api'), 
+      },
+    },
   },
   plugins: [vue()],
   resolve: {
