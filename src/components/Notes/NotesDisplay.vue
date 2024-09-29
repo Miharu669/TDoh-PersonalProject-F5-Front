@@ -1,8 +1,17 @@
+<script setup>
+const props = defineProps({
+  notes: Array,
+});
+
+// Correctly define emits to use in the template
+const emit = defineEmits(['add-note']);
+</script>
+
 <template>
   <div class="relative bg-notepad bg-cover p-6 w-full min-h-screen">
     <!-- Add Note Button -->
     <button
-      @click="$emit('add-note')"
+      @click="emit('add-note')"
       class="absolute top-4 left-1/2 transform -translate-x-1/2 w-12 h-12 flex items-center justify-center"
     >
       <img src="@/assets/icons/add.png" alt="Add Note" class="w-full h-full object-contain" />
@@ -21,12 +30,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-const props = defineProps({
-  notes: Array,
-});
-</script>
 
 <style>
 .bg-notepad {

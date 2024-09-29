@@ -17,13 +17,12 @@ export const useAuthStore = defineStore('auth', () => {
             isAuthenticated: false,
             access_token: '',
             refresh_token: '',
-            lang: 'en'
         }
     )
 
-    function login(username, password) {
+    function login(email, password) {
 
-        const credentials = new Credentials(username, password)
+        const credentials = new Credentials(email, password)
         const service = new AuthService(credentials)
         return service.login()
 

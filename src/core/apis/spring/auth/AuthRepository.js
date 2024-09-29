@@ -11,28 +11,37 @@ export default class AuthRepository {
         Accept: "*/*",
         "Content-Type": "application/json",
       };
-
+  
       let bodyContent = JSON.stringify({
-        email: credentials.getUsername(),
+        email: credentials.getEmail(),
         password: credentials.getPassword(),
       });
-
+  
       let reqOptions = {
         url: this.baseUrl + "/auth/authenticate",
         method: "POST",
         headers: headersList,
         data: bodyContent,
       };
-
+  
       const response = await axios.request(reqOptions);
+      console.log('Login response:', response); 
 
+  
+      if (response.status !== 200) {
+        console.error('Error status code:', response.status);
+        return { error: `Login failed with status code ${response.status}` };
+      }
+  
       const data = await response.data;
-
       return data;
     } catch (error) {
-      return error.toJSON();
+      console.error("Login error:", error);
+      return { error: "Login failed. Please check your credentials." };
     }
   }
+  
+  
 
   async register(credentialsRegister) {
     try {

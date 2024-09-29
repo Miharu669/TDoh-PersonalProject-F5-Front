@@ -1,19 +1,34 @@
 export default class Credentials {
-
-    #username
-    #password
-
-    constructor(username, password) {
-        this.#username = username
-        this.#password = password
+    #email;
+    #password;
+  
+    constructor(email, password) {
+      if (!this.isValidEmail(email)) {
+        throw new Error('Invalid email format');
+      }
+      if (!this.isValidPassword(password)) {
+        throw new Error('Password must be at least 8 characters long');
+      }
+  
+      this.#email = email;
+      this.#password = password;
     }
-
-    getUsername() {
-        return this.#username
+  
+    getEmail() {
+      return this.#email;
     }
-
+  
     getPassword() {
-        return this.#password
+      return this.#password;
     }
-
-}
+  
+    isValidEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+  
+    isValidPassword(password) {
+      return password && password.length >= 8;
+    }
+  }
+  
