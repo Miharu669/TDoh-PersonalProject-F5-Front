@@ -1,56 +1,56 @@
 <script setup>
-import { googleSdkLoaded } from "vue3-google-login";
-import { ref } from "vue";
-import { useAuthStore } from "@/stores/auth.js";
-import { useRouter } from "vue-router";
+// import { googleSdkLoaded } from "vue3-google-login";
+// import { ref } from "vue";
+// import { useAuthStore } from "@/stores/auth.js";
+// import { useRouter } from "vue-router";
 
-const store = useAuthStore();
-const router = useRouter();
-const isLoading = ref(false);
-const textAlert = ref("");
+// const store = useAuthStore();
+// const router = useRouter();
+// const isLoading = ref(false);
+// const textAlert = ref("");
 
-const signInWithGoogle = () => {
-  googleSdkLoaded((google) => {
-    google.accounts.oauth2
-      .initCodeClient({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        scope: "email",
-        redirect_uri: import.meta.env.VITE_GOOGLE_ENDPOINT,
-        callback: (response) => {
-          if (response.code) {
-            fetchUserDataFromGoogle(response.code);
-          }
-        },
-      })
-      .requestCode();
-  });
-};
+// const signInWithGoogle = () => {
+//   googleSdkLoaded((google) => {
+//     google.accounts.oauth2
+//       .initCodeClient({
+//         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+//         scope: "email",
+//         redirect_uri: import.meta.env.VITE_GOOGLE_ENDPOINT,
+//         callback: (response) => {
+//           if (response.code) {
+//             fetchUserDataFromGoogle(response.code);
+//           }
+//         },
+//       })
+//       .requestCode();
+//   });
+// };
 
-async function fetchUserDataFromGoogle(code) {
-  console.log("ID Token:", code);
-  isLoading.value = true;
-  try {
-    const response = await store.googleLogin(code);
-    console.log("Google login response:", response);
+// async function fetchUserDataFromGoogle(code) {
+//   console.log("ID Token:", code);
+//   isLoading.value = true;
+//   try {
+//     const response = await store.googleLogin(code);
+//     console.log("Google login response:", response);
 
-    if (response.message === "Logged") {
-      router.push("/");
-      emit("close-modal");
-    } else {
-      textAlert.value = response.data || "Google login failed.";
-      console.error("Google login failed:", response);
-    }
-  } catch (error) {
-    textAlert.value = "Error during Google login, please try again.";
-    console.error("Error in Google login:", error);
-  } finally {
-    isLoading.value = false;
-  }
-}
+//     if (response.message === "Logged") {
+//       router.push("/");
+//       emit("close-modal");
+//     } else {
+//       textAlert.value = response.data || "Google login failed.";
+//       console.error("Google login failed:", response);
+//     }
+//   } catch (error) {
+//     textAlert.value = "Error during Google login, please try again.";
+//     console.error("Error in Google login:", error);
+//   } finally {
+//     isLoading.value = false;
+//   }
+// }
 </script>
 
 <template>
-  <div class="flex justify-center items-center w-full">
+  <!-- <div class="flex justify-center items-center w-full">
     <button
       @click="signInWithGoogle"
       class="flex items-center bg-white border border-gray-300 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
@@ -98,5 +98,5 @@ async function fetchUserDataFromGoogle(code) {
   <div v-if="textAlert" class="text-red-500 mt-4 text-center">
     {{ textAlert }}
   </div>
-  <div v-if="isLoading" class="loading-spinner">Loading...</div>
+  <div v-if="isLoading" class="loading-spinner">Loading...</div> -->
 </template>

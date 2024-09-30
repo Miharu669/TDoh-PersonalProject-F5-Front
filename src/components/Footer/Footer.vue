@@ -1,6 +1,6 @@
 <template>
   <footer
-    class="bg-gradient-to-r from-black via-gray-900 to-black text-white py-4 w-full fixed bottom-0 left-0 shadow-lg">
+    class="bg-black text-white py-4 w-full   shadow-lg">
     <div
       class="container mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4 px-4">
 
@@ -28,8 +28,9 @@
 <script setup>
 </script>
 
-<style>
-body {
-  margin-bottom: 60px;
+<style scoped>
+/* Adjust sticky behavior */
+footer {
+  position: sticky;
 }
 </style>

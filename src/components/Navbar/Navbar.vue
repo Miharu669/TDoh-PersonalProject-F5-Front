@@ -24,7 +24,7 @@ const isAuthenticated = computed(() => store.user.isAuthenticated);
 </script>
 
 <template>
-  <nav class="bg-gray-900 p-4">
+  <nav class="bg-black p-4">
     <div class="container mx-auto flex items-center justify-between">
       <div class="text-white text-xl font-bold flex items-center space-x-2">
   <a href="/" class="flex items-center text-quinary text-2xl">

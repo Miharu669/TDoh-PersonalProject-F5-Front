@@ -14,12 +14,21 @@ export const useTaskStore = defineStore('taskStore', () => {
   const minitasks = ref([]);
   const minitask = ref(null);
 
+  const accessToken = localStorage.getItem('access_token');
+
   const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_ENDPOINT,
     headers: {
       'Content-Type': 'application/json',
-    },
+      'Authorization': `Bearer ${accessToken}`,
+    }
   });
+  
+    console.log('Access Token:', localStorage.getItem('access_token'));
+
+  const handleError = (err, defaultMsg) => {
+    error.value = err?.response?.data?.message || defaultMsg;
+  };
 
   const getTasks = async () => {
     loading.value = true;
@@ -28,7 +37,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       const response = await axiosInstance.get('/tasks');
       tasks.value = response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error fetching tasks';
+      handleError(err, 'Error fetching tasks');
     } finally {
       loading.value = false;
     }
@@ -41,7 +50,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       const response = await axiosInstance.get(`/tasks/${taskId}`);
       task.value = response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error fetching task';
+      handleError(err, 'Error fetching task');
     } finally {
       loading.value = false;
     }
@@ -54,7 +63,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       const response = await axiosInstance.post('/tasks', taskData);
       tasks.value.push(response.data);
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error creating task';
+      handleError(err, 'Error creating task');
     } finally {
       loading.value = false;
     }
@@ -70,7 +79,7 @@ export const useTaskStore = defineStore('taskStore', () => {
         tasks.value[index] = response.data;
       }
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error updating task';
+      handleError(err, 'Error updating task');
     } finally {
       loading.value = false;
     }
@@ -83,7 +92,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       await axiosInstance.delete(`/tasks/${taskId}`);
       tasks.value = tasks.value.filter((task) => task.id !== taskId);
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error deleting task';
+      handleError(err, 'Error deleting task');
     } finally {
       loading.value = false;
     }
@@ -96,7 +105,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       const response = await axiosInstance.get(`/tasks/${taskId}/subtasks`);
       subtasks.value = response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error fetching subtasks';
+      handleError(err, 'Error fetching subtasks');
     } finally {
       loading.value = false;
     }
@@ -109,7 +118,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       const response = await axiosInstance.post(`/tasks/${taskId}/subtasks`, subtaskData);
       subtasks.value.push(response.data);
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error creating subtask';
+      handleError(err, 'Error creating subtask');
     } finally {
       loading.value = false;
     }
@@ -125,7 +134,7 @@ export const useTaskStore = defineStore('taskStore', () => {
         subtasks.value[index] = response.data;
       }
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error updating subtask';
+      handleError(err, 'Error updating subtask');
     } finally {
       loading.value = false;
     }
@@ -138,7 +147,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       await axiosInstance.delete(`/subtasks/${subtaskId}`);
       subtasks.value = subtasks.value.filter((subtask) => subtask.id !== subtaskId);
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error deleting subtask';
+      handleError(err, 'Error deleting subtask');
     } finally {
       loading.value = false;
     }
@@ -151,7 +160,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       const response = await axiosInstance.get(`/subtasks/${subtaskId}/minitasks`);
       minitasks.value = response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error fetching mini tasks';
+      handleError(err, 'Error fetching mini tasks');
     } finally {
       loading.value = false;
     }
@@ -164,7 +173,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       const response = await axiosInstance.post(`/subtasks/${subtaskId}/minitasks`, minitaskData);
       minitasks.value.push(response.data);
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error creating mini task';
+      handleError(err, 'Error creating mini task');
     } finally {
       loading.value = false;
     }
@@ -180,7 +189,7 @@ export const useTaskStore = defineStore('taskStore', () => {
         minitasks.value[index] = response.data;
       }
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error updating mini task';
+      handleError(err, 'Error updating mini task');
     } finally {
       loading.value = false;
     }
@@ -193,7 +202,7 @@ export const useTaskStore = defineStore('taskStore', () => {
       await axiosInstance.delete(`/minitasks/${minitaskId}`);
       minitasks.value = minitasks.value.filter((minitask) => minitask.id !== minitaskId);
     } catch (err) {
-      error.value = err.response?.data?.message || 'Error deleting mini task';
+      handleError(err, 'Error deleting mini task');
     } finally {
       loading.value = false;
     }
