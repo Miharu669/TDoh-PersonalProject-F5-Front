@@ -54,9 +54,7 @@ async function handleLogin() {
 
         emit("close-modal");
 
-        if (response.role == "USER") {
-          router.push("/");
-        }
+        
       } else {
         textAlert.value = "Incorrect email or password!";
       }
