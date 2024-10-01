@@ -1,14 +1,27 @@
 <script setup>
+import { useAuthStore } from '@/stores/auth';
+import { useNoteStore } from '@/stores/noteStore';
 import { ref, onMounted } from 'vue';
 import { useNoteStore } from '@/stores/noteStore'; 
 import NotesDisplay from './NotesDisplay.vue';
 import AddNoteForm from './AddNoteForm.vue';
 
 const noteStore = useNoteStore(); 
+
+const { notes, loading, error } = storeToRefs(noteStore);
+
 const isAddNoteFormVisible = ref(false);
 
-onMounted(() => {
+const fetchNotes = () => {
   noteStore.fetchNotes(); 
+};
+
+const addNote = (newNote) => {
+  noteStore.addNote(newNote); 
+};
+
+onMounted(() => {
+  fetchNotes(); 
 });
 
 function toggleAddNoteForm() {
