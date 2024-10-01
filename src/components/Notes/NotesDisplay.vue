@@ -15,14 +15,16 @@ const emit = defineEmits(['add-note']);
       <img src="@/assets/icons/add.png" alt="Add Note" class="w-full h-full object-contain" />
     </button>
 
-    <div class="mt-16 space-y-4">
-      <div
-        v-for="note in notes"
-        :key="note.id"
-        class="bg-yellow-50 shadow-md p-4 rounded-lg border-b-4 border-yellow-400"
-      >
-        <h3 class="font-semibold">{{ note.title }}</h3>
-        <p class="text-gray-700">{{ note.content }}</p>
+    <div class="mt-16 flex justify-center"> 
+      <div class="space-y-4 w-3/4"> 
+        <div
+          v-for="note in notes"
+          :key="note.id"
+          class="bg-yellow-50 shadow-md p-4 rounded-lg border-b-4 border-yellow-400"
+        >
+          <h3 class="font-semibold">{{ note.title }}</h3>
+          <p class="text-gray-700">{{ note.content }}</p>
+        </div>
       </div>
     </div>
   </div>

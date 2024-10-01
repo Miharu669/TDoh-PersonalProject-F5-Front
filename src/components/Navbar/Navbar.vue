@@ -36,6 +36,8 @@ const isAuthenticated = computed(() => store.user.isAuthenticated);
       <div class="hidden md:flex space-x-4 items-center">
         <a href="/tasks" class="text-gray-300 hover:text-white">Tasks</a>
         <a href="/notes" class="text-gray-300 hover:text-white">Notes</a>
+        <a href="/calendar" class="text-gray-300 hover:text-white">Calendar</a>
+
         
 
         <div v-if="!isAuthenticated">
@@ -61,6 +63,8 @@ const isAuthenticated = computed(() => store.user.isAuthenticated);
     <div v-if="isOpen" class="md:hidden mt-4 space-y-2">
       <a href="/tasks" class="text-gray-300 hover:text-white">Tasks</a>
         <a href="/notes" class="text-gray-300 hover:text-white">Notes</a>
+        <a href="/calendar" class="text-gray-300 hover:text-white">Calendar</a>
+
 
       <div v-if="!isAuthenticated">
         <LoginButton @open-modal="toggleLoginModal" />

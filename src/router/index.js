@@ -3,6 +3,7 @@ import { useAuthStore } from "../stores/auth";
 import HomeView from "../views/HomeView.vue";
 import TaskView from "../views/TaskView.vue";
 import NotesView from "../views/NotesView.vue";
+import CalendarView from "@/views/CalendarView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,6 +23,11 @@ const router = createRouter({
       path: "/notes",  
       name: "notes",
       component: NotesView,
+    },
+    {
+      path: "/Calendar",
+      name: "Calendar",
+      component: CalendarView,
     }
     
     
