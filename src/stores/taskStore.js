@@ -25,14 +25,15 @@ export const useTaskStore = defineStore('taskStore', () => {
   const setAuthHeader = () => {
     const authStore = useAuthStore(); 
     const accessToken = authStore.user.access_token; 
-    return accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {};
+    console.log(accessToken);
+    return  {'Authorization': 'Bearer ' + accessToken}
   };
-
+  
   const handleError = (err, defaultMsg) => {
     error.value = err?.response?.data?.message || defaultMsg;
     console.error(error.value); 
   };
-
+  
   const fetchData = async (url) => {
     loading.value = true;
     error.value = null;

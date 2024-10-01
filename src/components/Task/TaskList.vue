@@ -16,6 +16,7 @@ const axiosInstance = axios.create({
   baseURL: apiEndpoint,
   headers: {
     'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
   },
 });
 
@@ -23,7 +24,7 @@ const fetchTasks = async () => {
   loading.value = true;
   error.value = null;
   try {
-    const response = await axiosInstance.get('/tasks?userId=1');
+    const response = await axiosInstance.get('/tasks');
     tasks.value = response.data;
   } catch (err) {
     error.value = err.message || 'Error fetching tasks';

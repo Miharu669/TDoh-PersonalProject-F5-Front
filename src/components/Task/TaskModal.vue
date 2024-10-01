@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { defineProps } from 'vue';
 
 const props = defineProps({
@@ -30,9 +30,16 @@ const submitForm = () => {
 const closeModal = () => {
   props.onClose();
 };
+
+const handleBackdropClick = (event) => {
+  if (event.target.classList.contains('backdrop')) {
+    closeModal();
+  }
+};
 </script>
+
 <template>
-  <div v-if="isVisible" class="fixed inset-0 flex items-center justify-center z-50">
+  <div v-if="isVisible" class="fixed inset-0 flex items-center justify-center z-50 backdrop" @click="handleBackdropClick">
     <div class="fixed inset-0 bg-black opacity-50"></div>
     <div class="bg-yellow-200 rounded-lg shadow-lg p-6 max-w-md w-full z-10">
       <h2 class="text-2xl font-bold mb-4">Add New Task</h2>
@@ -57,4 +64,3 @@ const closeModal = () => {
 </template>
 
 
-<style scoped></style>
