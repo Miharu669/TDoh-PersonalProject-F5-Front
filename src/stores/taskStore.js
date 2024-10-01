@@ -25,7 +25,6 @@ export const useTaskStore = defineStore('taskStore', () => {
   const setAuthHeader = () => {
     const authStore = useAuthStore(); 
     const accessToken = authStore.user.access_token; 
-    console.log(accessToken);
     return  {'Authorization': 'Bearer ' + accessToken}
   };
   

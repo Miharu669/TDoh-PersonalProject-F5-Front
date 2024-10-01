@@ -1,69 +1,86 @@
-import { defineStore } from 'pinia';
-import axios from 'axios';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import axios from "axios";
+import { useAuthStore } from "./auth";
 
-export const useNoteStore = defineStore('noteStore', {
-  state: () => ({
-    notes: [],
-    loading: false,
-    error: null,
-  }),
+export const useNoteStore = defineStore("noteStore", () => {
+  const notes = ref([]);
+  const loading = ref(false);
+  const error = ref(null);
 
-  actions: {
-    async fetchNotes() {
-      this.loading = true;
-      this.error = null;
+  const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
 
-      try {
-        const response = await axios.get('/api/v1/notes', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-          },
-        });
-        this.notes = response.data;
-      } catch (error) {
-        this.error = 'Failed to load notes.';
-        console.error(error);
-      } finally {
-        this.loading = false;
-      }
+  const axiosInstance = axios.create({
+    baseURL: apiEndpoint,
+    headers: {
+      "Content-Type": "application/json",
     },
+  });
 
-    async addNote(newNote) {
-      this.loading = true;
-      this.error = null;
-
-      try {
-        const response = await axios.post('/api/v1/notes', newNote, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-          },
-        });
-        this.notes.push(response.data);
-      } catch (error) {
-        this.error = 'Failed to add note.';
-        console.error(error);
-      } finally {
-        this.loading = false;
+  axiosInstance.interceptors.request.use(
+    (config) => {
+      const authStore = useAuthStore();
+      const accessToken = authStore.user.access_token;
+      if (accessToken) {
+        config.headers["Authorization"] = `Bearer ${accessToken}`;
       }
+      return config;
     },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
-    async deleteNote(noteId) {
-      this.loading = true;
-      this.error = null;
+  const handleError = (err, defaultMsg) => {
+    error.value = err?.response?.data?.message || defaultMsg;
+    console.error(error.value);
+  };
 
-      try {
-        await axios.delete(`/api/v1/notes/${noteId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-          },
-        });
-        this.notes = this.notes.filter((note) => note.id !== noteId);
-      } catch (error) {
-        this.error = 'Failed to delete note.';
-        console.error(error);
-      } finally {
-        this.loading = false;
-      }
-    },
-  },
+  const fetchNotes = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await axiosInstance.get("/notes");
+      notes.value = response.data;
+    } catch (err) {
+      handleError(err, "Error fetching notes");
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const addNote = async (newNote) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await axiosInstance.post("/notes", newNote);
+      notes.value.push(response.data);
+    } catch (err) {
+      handleError(err, "Error creating note");
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const deleteNote = async (noteId) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      await axiosInstance.delete(`/notes/${noteId}`);
+      notes.value = notes.value.filter((note) => note.id !== noteId);
+    } catch (err) {
+      handleError(err, "Error deleting note");
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  return {
+    notes,
+    loading,
+    error,
+    fetchNotes,
+    addNote,
+    deleteNote,
+  };
 });

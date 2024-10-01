@@ -4,8 +4,7 @@ import { useNoteStore } from '@/stores/noteStore';
 import NotesDisplay from './NotesDisplay.vue';
 import AddNoteForm from './AddNoteForm.vue';
 
-const noteStore = useNoteStore();
-
+const noteStore = useNoteStore(); 
 const isAddNoteFormVisible = ref(false);
 
 onMounted(() => {
@@ -24,9 +23,16 @@ function addNote(newNote) {
 
 <template>
   <div class="relative">
-    <NotesDisplay :notes="noteStore.notes" @add-note="toggleAddNoteForm" />
+    <NotesDisplay 
+      :notes="noteStore.notes" 
+      @add-note="toggleAddNoteForm" 
+    />
 
-    <AddNoteForm v-if="isAddNoteFormVisible" @submit="addNote" @close="toggleAddNoteForm" />
+    <AddNoteForm 
+      v-if="isAddNoteFormVisible" 
+      @submit="addNote" 
+      @close="toggleAddNoteForm" 
+    />
 
     <div v-if="noteStore.loading">Loading...</div>
     <div v-if="noteStore.error">{{ noteStore.error }}</div>

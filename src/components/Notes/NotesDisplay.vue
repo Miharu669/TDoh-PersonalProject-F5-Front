@@ -1,6 +1,9 @@
 <script setup>
 const props = defineProps({
-  notes: Array,
+  notes: {
+    type: Array,
+    required: true,
+  },
 });
 
 const emit = defineEmits(['add-note']);
