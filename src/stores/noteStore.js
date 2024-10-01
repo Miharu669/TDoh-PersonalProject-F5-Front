@@ -41,7 +41,7 @@ export const useNoteStore = defineStore("noteStore", () => {
     error.value = null;
     try {
       const response = await axiosInstance.get("/notes");
-      notes.value = response.data;
+      notes.value = response.data; 
     } catch (err) {
       handleError(err, "Error fetching notes");
     } finally {
@@ -49,14 +49,30 @@ export const useNoteStore = defineStore("noteStore", () => {
     }
   };
 
-  const addNote = async (newNote) => {
+  const createNote = async (newNote) => {
     loading.value = true;
     error.value = null;
     try {
       const response = await axiosInstance.post("/notes", newNote);
-      notes.value.push(response.data);
+      notes.value.push(response.data); 
     } catch (err) {
       handleError(err, "Error creating note");
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const updateNote = async (noteId, updatedNote) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await axiosInstance.put(`/notes/${noteId}`, updatedNote);
+      const index = notes.value.findIndex((note) => note.id === noteId);
+      if (index !== -1) {
+        notes.value[index] = response.data; 
+      }
+    } catch (err) {
+      handleError(err, "Error updating note");
     } finally {
       loading.value = false;
     }
@@ -67,7 +83,7 @@ export const useNoteStore = defineStore("noteStore", () => {
     error.value = null;
     try {
       await axiosInstance.delete(`/notes/${noteId}`);
-      notes.value = notes.value.filter((note) => note.id !== noteId);
+      notes.value = notes.value.filter((note) => note.id !== noteId); 
     } catch (err) {
       handleError(err, "Error deleting note");
     } finally {
@@ -80,7 +96,8 @@ export const useNoteStore = defineStore("noteStore", () => {
     loading,
     error,
     fetchNotes,
-    addNote,
+    createNote,
+    updateNote,
     deleteNote,
   };
 });

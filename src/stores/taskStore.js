@@ -19,6 +19,7 @@ export const useTaskStore = defineStore('taskStore', () => {
     baseURL: import.meta.env.VITE_API_ENDPOINT,
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
     }
   });
 
@@ -137,8 +138,6 @@ export const useTaskStore = defineStore('taskStore', () => {
       console.error('Failed to delete task:', error);
     }
   };
-
-  // Subtask-related methods
 
   const getSubtasksByTaskId = async (taskId) => {
     try {

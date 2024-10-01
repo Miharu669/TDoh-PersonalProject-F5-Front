@@ -2,42 +2,57 @@
 import { useAuthStore } from '@/stores/auth';
 import { useNoteStore } from '@/stores/noteStore';
 import { ref, onMounted } from 'vue';
-import { useNoteStore } from '@/stores/noteStore'; 
+import { storeToRefs } from 'pinia'; 
 import NotesDisplay from './NotesDisplay.vue';
 import AddNoteForm from './AddNoteForm.vue';
 
 const noteStore = useNoteStore(); 
-
-const { notes, loading, error } = storeToRefs(noteStore);
+const { notes, loading, error, fetchNotes, createNote } = storeToRefs(noteStore); 
 
 const isAddNoteFormVisible = ref(false);
 
-const fetchNotes = () => {
-  noteStore.fetchNotes(); 
+
+const fetchUserNotes = async () => {
+  loading.value = true; 
+  error.value = null; 
+  try {
+    await noteStore.getNotes(); 
+  } catch (err) {
+    error.value = err.message; 
+    console.error('Failed to fetch notes:', error.value);
+  } finally {
+    loading.value = false; 
+  }
 };
 
-const addNote = (newNote) => {
-  noteStore.addNote(newNote); 
+const addNote = async (newNote) => {
+  loading.value = true; 
+  error.value = null; 
+  try {
+    await noteStore.createNote(newNote); 
+    toggleAddNoteForm(); 
+  } catch (err) {
+    error.value = err.message; 
+    console.error('Failed to add note:', error.value);
+  } finally {
+    loading.value = false; 
+  }
 };
-
-onMounted(() => {
-  fetchNotes(); 
-});
 
 function toggleAddNoteForm() {
   isAddNoteFormVisible.value = !isAddNoteFormVisible.value;
 }
 
-function addNote(newNote) {
-  noteStore.addNote(newNote); 
-  toggleAddNoteForm(); 
-}
+onMounted(() => {
+  fetchUserNotes(); 
+});
 </script>
+
 
 <template>
   <div class="relative">
     <NotesDisplay 
-      :notes="noteStore.notes" 
+      :notes="notes"  
       @add-note="toggleAddNoteForm" 
     />
 
@@ -47,7 +62,8 @@ function addNote(newNote) {
       @close="toggleAddNoteForm" 
     />
 
-    <div v-if="noteStore.loading">Loading...</div>
-    <div v-if="noteStore.error">{{ noteStore.error }}</div>
+    <div v-if="loading">Loading...</div>
+    <div v-if="error">{{ error }}</div>
   </div>
 </template>
+
