@@ -18,16 +18,19 @@ const router = createRouter({
       path: "/tasks",
       name: "tasks",
       component: TaskView,
+      meta: { requiresAuth: true },
     },
     {
       path: "/notes",  
       name: "notes",
       component: NotesView,
+      meta: { requiresAuth: true },
     },
     {
       path: "/Calendar",
       name: "Calendar",
       component: CalendarView,
+      meta: { requiresAuth: true },
     }
     
     

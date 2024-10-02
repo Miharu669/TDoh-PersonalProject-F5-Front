@@ -3,12 +3,18 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import TaskCard from './TaskCard.vue';
 import TaskModal from './TaskModal.vue';
+import SubtaskModal from './SubtaskModal.vue';
 
 const tasks = ref([]);
 const loading = ref(false);
 const error = ref(null);
-const isModalVisible = ref(false);
 
+// Control de visibilidad de los modales
+const isTaskModalVisible = ref(false);
+const isSubtaskModalVisible = ref(false);
+
+// Task ID para la subtarea seleccionada
+const selectedTaskId = ref(null);
 
 const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
 
@@ -20,6 +26,7 @@ const axiosInstance = axios.create({
   },
 });
 
+// Obtener lista de tareas
 const fetchTasks = async () => {
   loading.value = true;
   error.value = null;
@@ -33,6 +40,7 @@ const fetchTasks = async () => {
   }
 };
 
+// Marcar tarea como completada
 const markTaskComplete = async (task) => {
   try {
     await axiosInstance.put(`/tasks/${task.id}`, { ...task, isDone: !task.isDone });
@@ -42,6 +50,7 @@ const markTaskComplete = async (task) => {
   }
 };
 
+// Marcar subtarea como completada
 const markSubtaskComplete = async (subtask) => {
   try {
     await axiosInstance.put(`/subtasks/${subtask.id}`, { ...subtask, isDone: !subtask.isDone });
@@ -51,61 +60,53 @@ const markSubtaskComplete = async (subtask) => {
   }
 };
 
-const markMinitaskComplete = async (minitask) => {
-  try {
-    await axiosInstance.put(`/minitasks/${minitask.id}`, { ...minitask, isDone: !minitask.isDone });
-    minitask.isDone = !minitask.isDone;
-  } catch (err) {
-    console.error("Error updating minitask:", err);
-  }
-};
-
+// Añadir nueva tarea
 const addTask = async (newTask) => {
   try {
     const response = await axiosInstance.post('/tasks', newTask);
     tasks.value.push(response.data);
-    closeModal();
+    closeTaskModal();
   } catch (err) {
     console.error("Error creating task:", err);
   }
 };
 
-const addSubtask = async (task) => {
-  const newSubtask = {
-    title: "New Subtask",
-    description: "Subtask description",
-    isDone: false,
-  };
+// Añadir nueva subtarea
+const addSubtask = async (newSubtask) => {
   try {
-    const response = await axiosInstance.post(`/tasks/${task.id}/subtasks`, newSubtask);
-    task.subTasks.push(response.data);
+    const response = await axiosInstance.post(`/subtasks`, { ...newSubtask, taskId: selectedTaskId.value });
+    
+    // Buscar la tarea correspondiente para añadir la subtarea
+    const task = tasks.value.find(task => task.id === selectedTaskId.value);
+    if (task) {
+      task.subTasks.push(response.data);
+    }
+
+    closeSubtaskModal(); // Cerrar el modal de subtareas
   } catch (err) {
     console.error("Error creating subtask:", err);
   }
 };
 
-const addMinitask = async (subtask) => {
-  const newMinitask = {
-    title: "New Minitask",
-    description: "Minitask description",
-    isDone: false,
-  };
-  try {
-    const response = await axiosInstance.post(`/subtasks/${subtask.id}/minitasks`, newMinitask);
-    subtask.miniTasks.push(response.data);
-  } catch (err) {
-    console.error("Error creating minitask:", err);
-  }
+// Abrir y cerrar modales
+const openTaskModal = () => {
+  isTaskModalVisible.value = true;
 };
 
-const openModal = () => {
-  isModalVisible.value = true;
+const closeTaskModal = () => {
+  isTaskModalVisible.value = false;
 };
 
-const closeModal = () => {
-  isModalVisible.value = false;
+const openSubtaskModal = (taskId) => {
+  selectedTaskId.value = taskId;  // Guardar el taskId de la tarea seleccionada
+  isSubtaskModalVisible.value = true;
 };
 
+const closeSubtaskModal = () => {
+  isSubtaskModalVisible.value = false;
+};
+
+// Obtener tareas cuando el componente se monta
 onMounted(() => {
   fetchTasks();
 });
@@ -117,6 +118,7 @@ onMounted(() => {
       <i class="fas fa-tasks"></i> Task Viewer
     </h1>
 
+    <!-- Mostrar cargando o error -->
     <div v-if="loading" class="text-gray-500 text-center text-xl">
       <i class="fas fa-spinner fa-spin"></i> Loading...
     </div>
@@ -124,17 +126,31 @@ onMounted(() => {
       <i class="fas fa-exclamation-circle"></i> {{ error }}
     </div>
 
+    <!-- Botón para añadir tarea -->
     <div class="text-center mb-6">
-      <button @click="openModal" class="bg-teal-400 text-black px-4 py-2 rounded-full hover:bg-teal-300">
-        <i class="fas fa-plus"></i>
+      <button @click="openTaskModal" class="bg-teal-400 text-black px-4 py-2 rounded-full hover:bg-teal-300">
+        <i class="fas fa-plus"></i> Add Task
       </button>
     </div>
-    <TaskModal :isVisible="isModalVisible" :onClose="closeModal" :onAddTask="addTask" />
+
+    <!-- Modal para añadir tarea -->
+    <TaskModal :isVisible="isTaskModalVisible" :onClose="closeTaskModal" :onAddTask="addTask" />
+
+    <!-- Modal para añadir subtarea -->
+    <SubtaskModal :isVisible="isSubtaskModalVisible" :onClose="closeSubtaskModal" :onAddSubtask="addSubtask" />
+
+    <!-- Mostrar tareas -->
     <div v-if="tasks.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <TaskCard v-for="task in tasks" :key="task.id" :task="task" :markTaskComplete="markTaskComplete"
-        :addSubtask="addSubtask" :addMinitask="addMinitask" :markSubtaskComplete="markSubtaskComplete"
-        :markMinitaskComplete="markMinitaskComplete" />
+      <TaskCard
+        v-for="task in tasks"
+        :key="task.id"
+        :task="task"
+        :markTaskComplete="markTaskComplete"
+        :addSubtask="openSubtaskModal" 
+        :markSubtaskComplete="markSubtaskComplete"
+      />
     </div>
+    
     <div v-else class="text-center text-gray-500">No tasks available.</div>
   </div>
 </template>

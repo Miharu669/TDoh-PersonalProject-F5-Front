@@ -26,9 +26,9 @@ export const useTaskStore = defineStore('taskStore', () => {
   const setAuthHeader = () => {
     const authStore = useAuthStore(); 
     const accessToken = authStore.user.access_token; 
-    return  {'Authorization': 'Bearer ' + accessToken}
+    return { 'Authorization': 'Bearer ' + accessToken };
   };
-  
+
   const handleError = (err, defaultMsg) => {
     error.value = err?.response?.data?.message || defaultMsg;
     console.error(error.value); 
@@ -149,7 +149,9 @@ export const useTaskStore = defineStore('taskStore', () => {
 
   const createSubtask = async (taskId, subtaskData) => {
     try {
-      const newSubtask = await postData(`/tasks/${taskId}/subtasks`, subtaskData);
+      console.log("TASK ID", taskId);
+      console.log("NEW SUBTASK", newSubtask);
+      const newSubtask = await axiosInstance.post(`/subtasks/${taskId}`, taskData);
       subtasks.value.push(newSubtask);
     } catch (error) {
       console.error('Failed to create subtask:', error);
@@ -178,43 +180,6 @@ export const useTaskStore = defineStore('taskStore', () => {
   };
 
 
-  const getMinitasksBySubtaskId = async (subtaskId) => {
-    try {
-      minitasks.value = await fetchData(`/subtasks/${subtaskId}/minitasks`);
-    } catch (error) {
-      console.error('Failed to fetch minitasks:', error);
-    }
-  };
-
-  const createMinitask = async (subtaskId, minitaskData) => {
-    try {
-      const newMinitask = await postData(`/subtasks/${subtaskId}/minitasks`, minitaskData);
-      minitasks.value.push(newMinitask);
-    } catch (error) {
-      console.error('Failed to create minitask:', error);
-    }
-  };
-
-  const updateMinitask = async (minitaskId, minitaskData) => {
-    try {
-      const updatedMinitask = await putData(`/minitasks/${minitaskId}`, minitaskData);
-      const index = minitasks.value.findIndex((minitask) => minitask.id === minitaskId);
-      if (index !== -1) {
-        minitasks.value[index] = updatedMinitask;
-      }
-    } catch (error) {
-      console.error('Failed to update minitask:', error);
-    }
-  };
-
-  const deleteMinitask = async (minitaskId) => {
-    try {
-      await deleteData(`/minitasks/${minitaskId}`);
-      minitasks.value = minitasks.value.filter((minitask) => minitask.id !== minitaskId);
-    } catch (error) {
-      console.error('Failed to delete minitask:', error);
-    }
-  };
 
   return {
     tasks,
@@ -234,9 +199,6 @@ export const useTaskStore = defineStore('taskStore', () => {
     createSubtask,
     updateSubtask,
     deleteSubtask,
-    getMinitasksBySubtaskId,
-    createMinitask,
-    updateMinitask,
-    deleteMinitask,
+   
   };
 });
