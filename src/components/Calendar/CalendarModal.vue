@@ -38,11 +38,11 @@
 <template>
     <div v-if="isVisible" class="fixed inset-0 flex items-center justify-center z-50">
       <div class="fixed inset-0 bg-black opacity-50"></div> 
-      <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full z-10">
+      <div class="bg-yellow-50 rounded-lg shadow-lg p-6 max-w-md w-full z-10">
         <h2 class="text-2xl font-bold mb-4">Add Event</h2>
         <form @submit.prevent="submitForm">
           <div class="mb-4">
-            <label for="eventName" class="block text-sm font-medium text-gray-700">Event Name</label>
+            <label for="eventName" class="block text-sm font-medium text-gray-700">Event:</label>
             <input 
               type="text" 
               id="eventName" 

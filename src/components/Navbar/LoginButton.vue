@@ -1,7 +1,7 @@
 <template>
   <button 
     @click="$emit('open-modal')" 
-    class="text-white bg-gradient-to-b from-blue-600 to-cyan-600 hover:from-cyan-700 hover:to-cyan-500 px-4 py-2 rounded-full">
+    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
     Login
   </button>
 </template>
