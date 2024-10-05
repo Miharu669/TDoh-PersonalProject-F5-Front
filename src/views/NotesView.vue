@@ -25,21 +25,17 @@ function editNote(note) {
 async function addNote(newNote) {
   try {
     if (isEditMode.value) {
-      await notesStore.updateNote(
-        currentNote.value.id,
-        newNote.title,
-        newNote.content
-      );
-      console.log("Note updated successfully");
+      await notesStore.updateNote(currentNote.value.id, newNote.title, newNote.content);
+      console.log('Note updated successfully');
     } else {
       await notesStore.addNote(newNote.title, newNote.content);
-      console.log("Note added successfully");
+      console.log('Note added successfully');
     }
     toggleAddNoteForm();
   } catch (err) {
-    console.error("Failed to add or update note:", err);
+    console.error('Failed to add or update note:', err);
   } finally {
-    isEditMode.value = false;
+    isEditMode.value = false;  
   }
 }
 

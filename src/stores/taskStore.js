@@ -15,7 +15,6 @@ export const useTaskStore = defineStore('taskStore', () => {
   const minitasks = ref([]);
   const minitask = ref(null);
 
-  // Axios instance with dynamic token setting
   const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_ENDPOINT,
     headers: {
@@ -23,20 +22,17 @@ export const useTaskStore = defineStore('taskStore', () => {
     },
   });
 
-  // Function to dynamically set the Authorization header with the latest access token
   const setAuthHeader = () => {
     const authStore = useAuthStore();
     const accessToken = authStore.user?.access_token;
     return { 'Authorization': 'Bearer ' + accessToken };
   };
 
-  // Generic error handler for the store
   const handleError = (err, defaultMsg) => {
     error.value = err?.response?.data?.message || defaultMsg;
     console.error('Error:', error.value);
   };
 
-  // Generic fetch function for GET requests
   const fetchData = async (url) => {
     loading.value = true;
     error.value = null;
@@ -52,7 +48,6 @@ export const useTaskStore = defineStore('taskStore', () => {
     }
   };
 
-  // Generic POST request
   const postData = async (url, data) => {
     loading.value = true;
     error.value = null;
@@ -68,8 +63,8 @@ export const useTaskStore = defineStore('taskStore', () => {
     }
   };
 
-  // Generic PUT request
   const putData = async (url, data) => {
+    debugger
     loading.value = true;
     error.value = null;
     try {
@@ -84,7 +79,6 @@ export const useTaskStore = defineStore('taskStore', () => {
     }
   };
 
-  // Generic DELETE request
   const deleteData = async (url) => {
     loading.value = true;
     error.value = null;
@@ -99,7 +93,6 @@ export const useTaskStore = defineStore('taskStore', () => {
     }
   };
 
-  // Task-related actions
   const getTasks = async () => {
     try {
       tasks.value = await fetchData('/tasks');
@@ -146,7 +139,6 @@ export const useTaskStore = defineStore('taskStore', () => {
     }
   };
 
-  // Subtask-related actions
   const getSubtasksByTaskId = async (taskId) => {
     try {
       subtasks.value = await fetchData(`/tasks/${taskId}/subtasks`);
@@ -158,7 +150,7 @@ export const useTaskStore = defineStore('taskStore', () => {
   const createSubtask = async (taskId, subtaskData) => {
     try {
       console.log('Creating subtask for taskId:', taskId, 'with data:', subtaskData);
-      const newSubtask = await postData(`/tasks/${taskId}/subtasks`, subtaskData);  // Corrected endpoint
+      const newSubtask = await postData(`/tasks/${taskId}/subtasks`, subtaskData);  
       subtasks.value.push(newSubtask);
     } catch (error) {
       console.error('Failed to create subtask:', error);

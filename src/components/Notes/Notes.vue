@@ -12,24 +12,15 @@ const authStore = useAuthStore();
 const { notes, loading, error } = storeToRefs(notesStore); 
 const isAddNoteFormVisible = ref(false);
 
-if (!authStore.user || !authStore.user.access_token) {
-  console.error('User not authenticated.');
-} else {
-  console.log('User authenticated:', authStore.user);
-}
 
-console.log('Notes.vue initialized. Store:', notesStore);
 
 function toggleAddNoteForm() {
   isAddNoteFormVisible.value = !isAddNoteFormVisible.value;
-  console.log('Add Note Form visibility toggled:', isAddNoteFormVisible.value);
 }
 
 const handleAddNote = async (newNote) => {
-  console.log('handleAddNote called with:', newNote);
   try {
     await notesStore.addNote(newNote.title, newNote.content);
-    console.log('addNote action completed successfully.');
     toggleAddNoteForm(); 
   } catch (err) {
     console.error('Failed to add note:', err);
@@ -37,10 +28,8 @@ const handleAddNote = async (newNote) => {
 };
 
 onMounted(() => {
-  console.log('Component mounted. Fetching notes...');
   if (authStore.user && authStore.user.access_token) {
     notesStore.fetchNotes();
-    console.log('fetchNotes called.');
   } else {
     console.error('Cannot fetch notes. User not authenticated.');
   }
