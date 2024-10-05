@@ -9,11 +9,9 @@ const tasks = ref([]);
 const loading = ref(false);
 const error = ref(null);
 
-// Control de visibilidad de los modales
 const isTaskModalVisible = ref(false);
 const isSubtaskModalVisible = ref(false);
 
-// Task ID para la subtarea seleccionada
 const selectedTaskId = ref(null);
 
 const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
@@ -26,7 +24,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Obtener lista de tareas
 const fetchTasks = async () => {
   loading.value = true;
   error.value = null;
@@ -40,7 +37,6 @@ const fetchTasks = async () => {
   }
 };
 
-// Marcar tarea como completada
 const markTaskComplete = async (task) => {
   try {
     await axiosInstance.put(`/tasks/${task.id}`, { ...task, isDone: !task.isDone });
@@ -50,7 +46,6 @@ const markTaskComplete = async (task) => {
   }
 };
 
-// Marcar subtarea como completada
 const markSubtaskComplete = async (subtask) => {
   try {
     await axiosInstance.put(`/subtasks/${subtask.id}`, { ...subtask, isDone: !subtask.isDone });
@@ -60,7 +55,6 @@ const markSubtaskComplete = async (subtask) => {
   }
 };
 
-// Añadir nueva tarea
 const addTask = async (newTask) => {
   try {
     const response = await axiosInstance.post('/tasks', newTask);
@@ -71,24 +65,21 @@ const addTask = async (newTask) => {
   }
 };
 
-// Añadir nueva subtarea
 const addSubtask = async (newSubtask) => {
   try {
     const response = await axiosInstance.post(`/subtasks`, { ...newSubtask, taskId: selectedTaskId.value });
     
-    // Buscar la tarea correspondiente para añadir la subtarea
     const task = tasks.value.find(task => task.id === selectedTaskId.value);
     if (task) {
       task.subTasks.push(response.data);
     }
 
-    closeSubtaskModal(); // Cerrar el modal de subtareas
+    closeSubtaskModal();
   } catch (err) {
     console.error("Error creating subtask:", err);
   }
 };
 
-// Abrir y cerrar modales
 const openTaskModal = () => {
   isTaskModalVisible.value = true;
 };
@@ -98,7 +89,7 @@ const closeTaskModal = () => {
 };
 
 const openSubtaskModal = (taskId) => {
-  selectedTaskId.value = taskId;  // Guardar el taskId de la tarea seleccionada
+  selectedTaskId.value = taskId;  
   isSubtaskModalVisible.value = true;
 };
 
@@ -106,7 +97,6 @@ const closeSubtaskModal = () => {
   isSubtaskModalVisible.value = false;
 };
 
-// Obtener tareas cuando el componente se monta
 onMounted(() => {
   fetchTasks();
 });
@@ -118,7 +108,6 @@ onMounted(() => {
       <i class="fas fa-tasks"></i> Task Viewer
     </h1>
 
-    <!-- Mostrar cargando o error -->
     <div v-if="loading" class="text-gray-500 text-center text-xl">
       <i class="fas fa-spinner fa-spin"></i> Loading...
     </div>
@@ -126,20 +115,16 @@ onMounted(() => {
       <i class="fas fa-exclamation-circle"></i> {{ error }}
     </div>
 
-    <!-- Botón para añadir tarea -->
     <div class="text-center mb-6">
       <button @click="openTaskModal" class="bg-teal-400 text-black px-4 py-2 rounded-full hover:bg-teal-300">
         <i class="fas fa-plus"></i> Add Task
       </button>
     </div>
 
-    <!-- Modal para añadir tarea -->
     <TaskModal :isVisible="isTaskModalVisible" :onClose="closeTaskModal" :onAddTask="addTask" />
 
-    <!-- Modal para añadir subtarea -->
     <SubtaskModal :isVisible="isSubtaskModalVisible" :onClose="closeSubtaskModal" :onAddSubtask="addSubtask" />
 
-    <!-- Mostrar tareas -->
     <div v-if="tasks.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <TaskCard
         v-for="task in tasks"

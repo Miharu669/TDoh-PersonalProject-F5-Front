@@ -1,94 +1,115 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
-import axios from "axios";
-import { useAuthStore } from "./auth";
+import { defineStore } from 'pinia';
+import axios from 'axios';
+import { ref } from 'vue';
+import { useAuthStore } from './auth';  
 
-export const useNoteStore = defineStore("noteStore", () => {
+const apiEndpoint = import.meta.env.VITE_API_ENDPOINT + '/notes';
+console.log('API Endpoint:', apiEndpoint);
+
+const axiosInstance = axios.create({
+  baseURL: apiEndpoint,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+const setAuthHeader = () => {
+  const authStore = useAuthStore();  
+  const token = authStore.user?.access_token;  
+  if (token) {
+    return { 'Authorization': 'Bearer ' + token };  
+  } else {
+    console.log('No authorization token found in authStore.');
+    return {};
+  }
+};
+
+const handleError = (err) => {
+  if (err.response) {
+    error.value = err.response.data.message || 'An error occurred.';
+    console.error('Error response from server:', err.response);
+  } else if (err.request) {
+    error.value = 'No response from server. Please try again later.';
+    console.error('No response received:', err.request);
+  } else {
+    error.value = err.message || 'An unexpected error occurred.';
+    console.error('Error setting up request:', err.message);
+  }
+};
+
+export const useNotesStore = defineStore('notes', () => {
   const notes = ref([]);
   const loading = ref(false);
   const error = ref(null);
 
-  const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
-
-  const axiosInstance = axios.create({
-    baseURL: apiEndpoint,
-    headers: {
-      "Content-Type": "application/json",
-      'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-    },
-  });
-
-  axiosInstance.interceptors.request.use(
-    (config) => {
-      const authStore = useAuthStore();
-      const accessToken = authStore.user.access_token;
-      if (accessToken) {
-        config.headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
-
-  const handleError = (err, defaultMsg) => {
-    error.value = err?.response?.data?.message || defaultMsg;
-    console.error(error.value);
-  };
-
   const fetchNotes = async () => {
+    console.log('fetchNotes called');
     loading.value = true;
     error.value = null;
     try {
-      const response = await axiosInstance.get("/notes");
-      notes.value = response.data; 
+      const headers = setAuthHeader();  
+      const response = await axiosInstance.get('', { headers });  
+      console.log('Fetched notes:', response.data);
+      notes.value = response.data;
     } catch (err) {
-      handleError(err, "Error fetching notes");
+      handleError(err);
+    } finally {
+      loading.value = false;
+      console.log('fetchNotes completed. Loading:', loading.value);
+    }
+  };
+
+  const addNote = async (title, content) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await axiosInstance.post('/', { title, content });
+      notes.value.push(response.data);  
+    } catch (err) {
+      error.value = 'Failed to add note.';
+      console.error('Error adding note:', err);
+      throw err;
     } finally {
       loading.value = false;
     }
   };
 
-  const createNote = async (newNote) => {
+  const updateNote = async (id, title, content) => {
+    console.log(`updateNote called for ID ${id} with title:`, title, 'content:', content);
     loading.value = true;
     error.value = null;
     try {
-      const response = await axiosInstance.post("/notes", newNote);
-      notes.value.push(response.data); 
-    } catch (err) {
-      handleError(err, "Error creating note");
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const updateNote = async (noteId, updatedNote) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await axiosInstance.put(`/notes/${noteId}`, updatedNote);
-      const index = notes.value.findIndex((note) => note.id === noteId);
+      const headers = setAuthHeader();  
+      const response = await axiosInstance.put(`/${id}`, { title, content }, { headers });
+      console.log('Note updated successfully:', response.data);
+      const index = notes.value.findIndex(note => note.id === id);
       if (index !== -1) {
-        notes.value[index] = response.data; 
+        notes.value[index] = response.data;
       }
     } catch (err) {
-      handleError(err, "Error updating note");
+      handleError(err);
+      console.error('Error updating note:', err);
     } finally {
       loading.value = false;
+      console.log('updateNote completed. Loading:', loading.value);
     }
   };
 
-  const deleteNote = async (noteId) => {
+  const deleteNote = async (id) => {
+    console.log(`deleteNote called for ID ${id}`);
     loading.value = true;
     error.value = null;
     try {
-      await axiosInstance.delete(`/notes/${noteId}`);
-      notes.value = notes.value.filter((note) => note.id !== noteId); 
+      const headers = setAuthHeader(); 
+      await axiosInstance.delete(`/${id}`, { headers });
+      console.log(`Note with ID ${id} deleted successfully.`);
+      notes.value = notes.value.filter(note => note.id !== id);
     } catch (err) {
-      handleError(err, "Error deleting note");
+      handleError(err);
+      console.error('Error deleting note:', err);
     } finally {
       loading.value = false;
+      console.log('deleteNote completed. Loading:', loading.value);
     }
   };
 
@@ -97,7 +118,7 @@ export const useNoteStore = defineStore("noteStore", () => {
     loading,
     error,
     fetchNotes,
-    createNote,
+    addNote,
     updateNote,
     deleteNote,
   };

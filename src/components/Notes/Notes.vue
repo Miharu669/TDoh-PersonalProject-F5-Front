@@ -1,50 +1,51 @@
 <script setup>
-import { useNoteStore } from '@/stores/noteStore';
 import { ref, onMounted } from 'vue';
+import { useNotesStore } from '@/stores/noteStore';
+import { useAuthStore } from '@/stores/auth';  
 import { storeToRefs } from 'pinia';
 import NotesDisplay from './NotesDisplay.vue';
 import AddNoteForm from './AddNoteForm.vue';
 
-const noteStore = useNoteStore(); 
-const { notes, loading, error,  addNote } = storeToRefs(noteStore); 
+const notesStore = useNotesStore();
+const authStore = useAuthStore(); 
 
+const { notes, loading, error } = storeToRefs(notesStore); 
 const isAddNoteFormVisible = ref(false);
-const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
 
-const axiosInstance = axios.create({
-  baseURL: apiEndpoint,
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-  },
-});
+if (!authStore.user || !authStore.user.access_token) {
+  console.error('User not authenticated.');
+} else {
+  console.log('User authenticated:', authStore.user);
+}
 
-const fetchNotes = async () => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await axiosInstance.get("/notes");
-      notes.value = response.data; 
-    } catch (err) {
-      handleError(err, "Error fetching notes");
-    } finally {
-      loading.value = false;
-    }
-  };
-
-const handleAddNote = async (newNote) => {
-  const accessToken = localStorage.getItem('access_token');
-  await addNote(newNote, accessToken);
-  toggleAddNoteForm();
-};
+console.log('Notes.vue initialized. Store:', notesStore);
 
 function toggleAddNoteForm() {
   isAddNoteFormVisible.value = !isAddNoteFormVisible.value;
+  console.log('Add Note Form visibility toggled:', isAddNoteFormVisible.value);
 }
 
+const handleAddNote = async (newNote) => {
+  console.log('handleAddNote called with:', newNote);
+  try {
+    await notesStore.addNote(newNote.title, newNote.content);
+    console.log('addNote action completed successfully.');
+    toggleAddNoteForm(); 
+  } catch (err) {
+    console.error('Failed to add note:', err);
+  }
+};
+
 onMounted(() => {
-  fetchNotes(); 
+  console.log('Component mounted. Fetching notes...');
+  if (authStore.user && authStore.user.access_token) {
+    notesStore.fetchNotes();
+    console.log('fetchNotes called.');
+  } else {
+    console.error('Cannot fetch notes. User not authenticated.');
+  }
 });
+
 </script>
 
 <template>
@@ -53,7 +54,14 @@ onMounted(() => {
 
     <AddNoteForm v-if="isAddNoteFormVisible" @submit="handleAddNote" @close="toggleAddNoteForm" />
 
-    <div v-if="loading">Loading...</div>
-    <div v-if="error">{{ error }}</div>
+    <div v-if="loading" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-40">
+      <div class="bg-white p-4 rounded shadow">
+        <p class="text-center text-lg font-semibold">Loading...</p>
+      </div>
+    </div>
+
+    <div v-if="error" class="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow z-50">
+      {{ error }}
+    </div>
   </div>
 </template>

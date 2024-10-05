@@ -11,7 +11,7 @@ const emit = defineEmits(['add-note']);
 
 <template>
   <div class="relative bg-notepad bg-yellow-200 bg-cover p-6 w-full min-h-screen">
-    <button @click="emit('add-note')" class="absolute top-4 left-1/2 transform -translate-x-1/2 w-12 h-12 flex items-center justify-center">
+    <button @click="$emit('add-note')" class="absolute top-4 left-1/2 transform -translate-x-1/2 w-12 h-12 flex items-center justify-center">
       <img src="@/assets/icons/add.png" alt="Add Note" class="w-full h-full object-contain" />
     </button>
 
