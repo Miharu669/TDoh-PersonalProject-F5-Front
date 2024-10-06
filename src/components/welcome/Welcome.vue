@@ -1,32 +1,25 @@
 <script setup>
-import LoginModal from '@/components/Navbar/LoginModal.vue';
-import { ref } from 'vue';
 
-const showLoginModal = ref(false);
-
-const toggleLoginModal = () => {
-  showLoginModal.value = !showLoginModal.value;
-};
 
 </script>
 
 <template>
-  <section class="h-100 bg-gradient-to-r from-orange-700 via-black to-cyan-700 p-6 pb-20 shadow-2xl text-center text-white overflow-hidden relative">
+  <section class="h-100 bg-gradient-to-r from-orange-700 via-black to-cyan-700 p-6 pb-20 text-center text-white overflow-hidden relative">
     <div class="absolute inset-0 opacity-30 pointer-events-none">
       <div class="bg-gradient-to-br from-yellow-400 to-pink-500 w-72 h-72 rounded-full blur-3xl opacity-50 absolute top-10 right-10"></div>
       <div class="bg-gradient-to-br from-green-400 to-teal-500 w-56 h-56 rounded-full blur-3xl opacity-50 absolute bottom-10 left-10"></div>
     </div>
 
     <div class="relative z-10">
-      <h1 class="text-5xl font-extrabold mb-6 leading-tight">
+      <h1 class="text-4xl font-extrabold mb-6 leading-tight">
         Welcome to <span class="text-yellow-300">TDoH</span>! 🎯
       </h1>
-      <p class="text-2xl mb-6 leading-relaxed max-w-3xl mx-auto">
+      <p class="text-xl mb-6 leading-relaxed max-w-3xl mx-auto">
         <strong class="text-yellow-300">Organize your life, one task at a time.</strong>  
         At <span class="font-bold">TDoH</span>, we help you break down your big goals into manageable steps. Whether you're working on a massive project or daily tasks, TDoH helps you stay focused, productive, and stress-free.
       </p>
 
-      <h2 class="text-4xl font-bold mb-8">Why You'll Love TDoH</h2>
+      <h2 class="text-3xl font-bold mb-8">Why You'll Love TDoH</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-left max-w-4xl mx-auto text-xl">
         <div>
           <i class="fa-solid fa-circle-check text-yellow-400"></i> <strong>Break tasks down:</strong> Manage tasks with subtasks and minitasks to make consistent progress.
@@ -46,15 +39,9 @@ const toggleLoginModal = () => {
         Whether you're a student, a professional, or someone looking to master their daily life, <span class="font-bold text-yellow-300">TDoH</span> gives you the power to achieve your goals while having fun.
       </p>
 
-      <button
-        @click="toggleLoginModal"
-        class="bg-yellow-300 text-indigo-900 font-semibold py-4 px-8 rounded-full shadow-lg hover:bg-yellow-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1"
-      >
-        Get Started Now
-      </button>
+      
     </div>
 
-    <LoginModal v-if="showLoginModal" @close="toggleLoginModal" />
   </section>
 </template>
 

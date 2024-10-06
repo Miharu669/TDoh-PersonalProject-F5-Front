@@ -7,12 +7,13 @@ import Footer from "@/components/Footer/Footer.vue";
 </script>
 
 <template>
-  <html
-    class="font-poppins bg-gradient-to-r from-orange-700 via-black to-cyan-700"
+  <div
+    class="font-poppins bg-gradient-to-r from-orange-700 via-black to-cyan-700 min-h-screen flex flex-col"
   >
     <Navbar />
-      <RouterView />
     <Pomodoro />
+      <RouterView />
     <Footer />
-  </html>
+    <notifications />
+  </div>
 </template>

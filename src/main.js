@@ -7,7 +7,8 @@ import { useAuthStore } from "./stores/auth";
 import App from "./App.vue";
 import router from "./router";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import "vue-toastification/dist/index.css";
+import Notifications from '@kyvg/vue3-notification';
+
 // import vue3GoogleLogin from 'vue3-google-login';
 
 const app = createApp(App);
@@ -23,6 +24,9 @@ const authStore = useAuthStore();
 authStore.loadUserFromLocalStorage();
 
 app.use(router);
+
+app.use(Notifications);
+
 
 
 app.mount("#app");

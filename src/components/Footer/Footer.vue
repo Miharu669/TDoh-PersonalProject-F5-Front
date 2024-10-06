@@ -5,11 +5,11 @@
       class="container mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4 px-4">
 
       <div class="flex items-center justify-center md:justify-start space-x-2">
-        <p class="text-sm text-center md:text-left">Made with 💙 by Miharu</p>
+        <p class="text-sm text-center md:text-left">Made with 💙 by Doel</p>
       </div>
 
       <p class="text-xs text-gray-400 text-center flex-grow">
-        © 2024 Miharu. All rights reserved.
+        © 2024 Doel. All rights reserved.
       </p>
 
       <div class="flex items-center justify-center md:justify-end space-x-4">
@@ -29,7 +29,6 @@
 </script>
 
 <style scoped>
-/* Adjust sticky behavior */
 footer {
   position: sticky;
 }
