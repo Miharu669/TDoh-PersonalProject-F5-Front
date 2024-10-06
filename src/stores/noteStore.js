@@ -4,7 +4,6 @@ import { ref } from 'vue';
 import { useAuthStore } from './auth';  
 
 const apiEndpoint = import.meta.env.VITE_API_ENDPOINT + '/notes';
-console.log('API Endpoint:', apiEndpoint);
 
 const axiosInstance = axios.create({
   baseURL: apiEndpoint,
@@ -20,7 +19,6 @@ const setAuthHeader = () => {
   if (token) {
     return { 'Authorization': 'Bearer ' + token }; 
   } else {
-    console.log('No authorization token found in authStore.');
     return {};
   }
 };
@@ -43,19 +41,16 @@ export const useNotesStore = defineStore('notes', () => {
   const loading = ref(false);  
   const error = ref(null);  
   const fetchNotes = async () => {
-    console.log('fetchNotes called');
     loading.value = true;
     error.value = null;
     try {
       const headers = setAuthHeader();  
       const response = await axiosInstance.get('', { headers }); 
-      console.log('Fetched notes:', response.data);
       notes.value = response.data;
     } catch (err) {
       handleError(err, error); 
     } finally {
       loading.value = false;
-      console.log('fetchNotes completed. Loading:', loading.value);
     }
   };
 
@@ -66,7 +61,6 @@ export const useNotesStore = defineStore('notes', () => {
       const headers = setAuthHeader();  
       const response = await axiosInstance.post('', { title, content }, { headers });  
       notes.value.push(response.data);  
-      console.log('Note added successfully:', response.data);
     } catch (err) {
       handleError(err, error);  
       throw err;  
@@ -77,41 +71,33 @@ export const useNotesStore = defineStore('notes', () => {
 
 
   const updateNote = async (id, title, content) => {
-    console.log(`updateNote called for ID ${id} with title:`, title, 'content:', content);
     loading.value = true;
     error.value = null;
     try {
       const headers = setAuthHeader();  
       const response = await axiosInstance.put(`/${id}`, { title, content }, { headers });
-      console.log('Note updated successfully:', response.data);
       const index = notes.value.findIndex(note => note.id === id);
       if (index !== -1) {
         notes.value[index] = response.data;  
       }
     } catch (err) {
       handleError(err, error);  
-      console.error('Error updating note:', err);
     } finally {
       loading.value = false;
-      console.log('updateNote completed. Loading:', loading.value);
     }
   };
 
   const deleteNote = async (id) => {
-    console.log(`deleteNote called for ID ${id}`);
     loading.value = true;
     error.value = null;
     try {
       const headers = setAuthHeader(); 
       await axiosInstance.delete(`/${id}`, { headers }); 
-      console.log(`Note with ID ${id} deleted successfully.`);
       notes.value = notes.value.filter(note => note.id !== id); 
     } catch (err) {
       handleError(err, error);  
-      console.error('Error deleting note:', err);
     } finally {
       loading.value = false;
-      console.log('deleteNote completed. Loading:', loading.value);
     }
   };
 

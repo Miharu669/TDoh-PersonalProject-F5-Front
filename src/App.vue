@@ -11,9 +11,7 @@ import Footer from "@/components/Footer/Footer.vue";
     class="font-poppins bg-gradient-to-r from-orange-700 via-black to-cyan-700"
   >
     <Navbar />
-    <keep-alive>
       <RouterView />
-    </keep-alive>
     <Pomodoro />
     <Footer />
   </html>
