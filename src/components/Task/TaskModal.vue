@@ -1,60 +1,3 @@
-<script setup>
-import { ref, watch, onMounted } from "vue";
-
-const props = defineProps({
-  initialTitle: {
-    type: String,
-    default: "",
-  },
-  initialDescription: {
-    type: String,
-    default: "",
-  },
-  isEditMode: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-const emit = defineEmits(["submit", "close"]);
-
-const title = ref(props.initialTitle);
-const description = ref(props.initialDescription);
-
-function submitTask() {
-  if (title.value.trim() && description.value.trim()) {
-    const taskData = {
-      title: title.value.trim(),
-      description: description.value.trim(),
-    };
-    emit("submit", taskData);
-    resetForm();
-  }
-}
-
-function closeModal() {
-  resetForm();
-  emit("close");
-}
-
-function resetForm() {
-  title.value = "";
-  description.value = "";
-}
-
-watch(
-  () => [props.initialTitle, props.initialDescription],
-  ([newTitle, newDescription]) => {
-    title.value = newTitle;
-    description.value = newDescription;
-  }
-);
-
-onMounted(() => {
-  // Focus on the modal content for accessibility
-  document.querySelector(".bg-white").focus();
-});
-</script>
 <template>
   <div class="fixed inset-0 flex items-center justify-center z-50">
     <div
@@ -129,3 +72,60 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, watch, onMounted } from "vue";
+
+const props = defineProps({
+  initialTitle: {
+    type: String,
+    default: "",
+  },
+  initialDescription: {
+    type: String,
+    default: "",
+  },
+  isEditMode: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(["submit", "close"]);
+
+const title = ref(props.initialTitle);
+const description = ref(props.initialDescription);
+
+function submitTask() {
+  if (title.value.trim() && description.value.trim()) {
+    const taskData = {
+      title: title.value.trim(),
+      description: description.value.trim(),
+    };
+    emit("submit", taskData);
+    resetForm();
+  }
+}
+
+function closeModal() {
+  resetForm();
+  emit("close");
+}
+
+function resetForm() {
+  title.value = "";
+  description.value = "";
+}
+
+watch(
+  () => [props.initialTitle, props.initialDescription],
+  ([newTitle, newDescription]) => {
+    title.value = newTitle;
+    description.value = newDescription;
+  }
+);
+
+onMounted(() => {
+  document.querySelector(".bg-white").focus();
+});
+</script>

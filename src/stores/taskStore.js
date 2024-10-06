@@ -68,25 +68,51 @@ export const useTasksStore = defineStore('tasks', () => {
       loading.value = false;
     }
   };
+  
+  const updateTask = async (id, title, description) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const headers = setAuthHeader();
+      const response = await axiosInstance.put(`/${id}`, { title, description }, { headers });
+      const index = tasks.value.findIndex(task => task.id === id);
+      if (index !== -1) {
+        tasks.value[index].title = response.data.title;
+        tasks.value[index].description = response.data.description;
+      }
+    } catch (err) {
+      handleError(err, error);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const updateTaskStatus = async (id, isDone) => {
     loading.value = true;
     error.value = null;
     try {
-      const headers = setAuthHeader();  
-      const response = await axiosInstance.put(`/${id}`, { isDone }, { headers }); 
+      const headers = setAuthHeader();
+  
+      await axiosInstance.patch(
+        `/${id}/status`,
+        { isDone },
+        { headers }
+      );
+  
       const index = tasks.value.findIndex(task => task.id === id);
       if (index !== -1) {
-        tasks.value[index].isDone = response.data.isDone;  
+        tasks.value[index].isDone = isDone;
       }
     } catch (err) {
-      handleError(err, error);  
+      handleError(err, error);
     } finally {
       loading.value = false;
     }
   };
   
-
+  
+  
   const deleteTask = async (id) => {
     loading.value = true;
     error.value = null;
@@ -107,6 +133,7 @@ export const useTasksStore = defineStore('tasks', () => {
     error,
     fetchTasks,
     addTask,
+    updateTask,
     updateTaskStatus,
     deleteTask,
   };
