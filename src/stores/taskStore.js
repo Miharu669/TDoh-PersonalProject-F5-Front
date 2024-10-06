@@ -1,200 +1,113 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 import axios from 'axios';
-import { useAuthStore } from './auth';
+import { ref } from 'vue';
+import { useAuthStore } from './auth';  
 
-export const useTaskStore = defineStore('taskStore', () => {
-  const tasks = ref([]);
-  const task = ref(null);
-  const loading = ref(false);
-  const error = ref(null);
+const apiEndpoint = import.meta.env.VITE_API_ENDPOINT + '/tasks';
 
-  const subtasks = ref([]);
-  const subtask = ref(null);
+const axiosInstance = axios.create({
+  baseURL: apiEndpoint,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-  const minitasks = ref([]);
-  const minitask = ref(null);
+const setAuthHeader = () => {
+  const authStore = useAuthStore();  
+  const token = authStore.user?.access_token;  
+  if (token) {
+    return { 'Authorization': 'Bearer ' + token }; 
+  } else {
+    return {};
+  }
+};
 
-  const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_ENDPOINT,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+const handleError = (err, errorRef) => {
+  if (err.response) {
+    errorRef.value = err.response.data.message || 'An error occurred.';
+    console.error('Error response from server:', err.response);
+  } else if (err.request) {
+    errorRef.value = 'No response from server. Please try again later.';
+    console.error('No response received:', err.request);
+  } else {
+    errorRef.value = err.message || 'An unexpected error occurred.';
+    console.error('Error setting up request:', err.message);
+  }
+};
 
-  const setAuthHeader = () => {
-    const authStore = useAuthStore();
-    const accessToken = authStore.user?.access_token;
-    return { 'Authorization': 'Bearer ' + accessToken };
-  };
+export const useTasksStore = defineStore('tasks', () => {
+  const tasks = ref([]);  
+  const loading = ref(false);  
+  const error = ref(null);  
 
-  const handleError = (err, defaultMsg) => {
-    error.value = err?.response?.data?.message || defaultMsg;
-    console.error('Error:', error.value);
-  };
-
-  const fetchData = async (url) => {
+  const fetchTasks = async () => {
     loading.value = true;
     error.value = null;
     try {
-      const headers = setAuthHeader();
-      const response = await axiosInstance.get(url, { headers });
-      return response.data;
+      const headers = setAuthHeader();  
+      const response = await axiosInstance.get('', { headers }); 
+      tasks.value = response.data;
     } catch (err) {
-      handleError(err, 'Error fetching data');
-      throw err;
+      handleError(err, error); 
     } finally {
       loading.value = false;
     }
   };
 
-  const postData = async (url, data) => {
+  const addTask = async (title, description) => {
     loading.value = true;
     error.value = null;
     try {
-      const headers = setAuthHeader();
-      const response = await axiosInstance.post(url, data, { headers });
-      return response.data;
+      const headers = setAuthHeader();  
+      const response = await axiosInstance.post('', { title, description, isDone: false }, { headers });  
+      tasks.value.push(response.data);  
     } catch (err) {
-      handleError(err, 'Error creating data');
-      throw err;
+      handleError(err, error);  
+      throw err;  
     } finally {
       loading.value = false;
     }
   };
 
-  const putData = async (url, data) => {
-    debugger
+  const updateTaskStatus = async (id, isDone) => {
     loading.value = true;
     error.value = null;
     try {
-      const headers = setAuthHeader();
-      const response = await axiosInstance.put(url, data, { headers });
-      return response.data;
-    } catch (err) {
-      handleError(err, 'Error updating data');
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const deleteData = async (url) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const headers = setAuthHeader();
-      await axiosInstance.delete(url, { headers });
-    } catch (err) {
-      handleError(err, 'Error deleting data');
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const getTasks = async () => {
-    try {
-      tasks.value = await fetchData('/tasks');
-    } catch (error) {
-      console.error('Failed to get tasks:', error);
-    }
-  };
-
-  const getTask = async (taskId) => {
-    try {
-      task.value = await fetchData(`/tasks/${taskId}`);
-    } catch (error) {
-      console.error('Failed to get task:', error);
-    }
-  };
-
-  const createTask = async (taskData) => {
-    try {
-      const newTask = await postData('/tasks', taskData);
-      tasks.value.push(newTask);
-    } catch (error) {
-      console.error('Failed to create task:', error);
-    }
-  };
-
-  const updateTask = async (taskId, taskData) => {
-    try {
-      const updatedTask = await putData(`/tasks/${taskId}`, taskData);
-      const index = tasks.value.findIndex((task) => task.id === taskId);
+      const headers = setAuthHeader();  
+      const response = await axiosInstance.put(`/${id}`, { isDone }, { headers }); 
+      const index = tasks.value.findIndex(task => task.id === id);
       if (index !== -1) {
-        tasks.value[index] = updatedTask;
+        tasks.value[index].isDone = response.data.isDone;  
       }
-    } catch (error) {
-      console.error('Failed to update task:', error);
+    } catch (err) {
+      handleError(err, error);  
+    } finally {
+      loading.value = false;
     }
   };
+  
 
-  const deleteTask = async (taskId) => {
+  const deleteTask = async (id) => {
+    loading.value = true;
+    error.value = null;
     try {
-      await deleteData(`/tasks/${taskId}`);
-      tasks.value = tasks.value.filter((task) => task.id !== taskId);
-    } catch (error) {
-      console.error('Failed to delete task:', error);
-    }
-  };
-
-  const getSubtasksByTaskId = async (taskId) => {
-    try {
-      subtasks.value = await fetchData(`/tasks/${taskId}/subtasks`);
-    } catch (error) {
-      console.error('Failed to fetch subtasks:', error);
-    }
-  };
-
-  const createSubtask = async (taskId, subtaskData) => {
-    try {
-      console.log('Creating subtask for taskId:', taskId, 'with data:', subtaskData);
-      const newSubtask = await postData(`/tasks/${taskId}/subtasks`, subtaskData);  
-      subtasks.value.push(newSubtask);
-    } catch (error) {
-      console.error('Failed to create subtask:', error);
-    }
-  };
-
-  const updateSubtask = async (subtaskId, subtaskData) => {
-    try {
-      const updatedSubtask = await putData(`/subtasks/${subtaskId}`, subtaskData);
-      const index = subtasks.value.findIndex((subtask) => subtask.id === subtaskId);
-      if (index !== -1) {
-        subtasks.value[index] = updatedSubtask;
-      }
-    } catch (error) {
-      console.error('Failed to update subtask:', error);
-    }
-  };
-
-  const deleteSubtask = async (subtaskId) => {
-    try {
-      await deleteData(`/subtasks/${subtaskId}`);
-      subtasks.value = subtasks.value.filter((subtask) => subtask.id !== subtaskId);
-    } catch (error) {
-      console.error('Failed to delete subtask:', error);
+      const headers = setAuthHeader(); 
+      await axiosInstance.delete(`/${id}`, { headers }); 
+      tasks.value = tasks.value.filter(task => task.id !== id); 
+    } catch (err) {
+      handleError(err, error);  
+    } finally {
+      loading.value = false;
     }
   };
 
   return {
     tasks,
-    task,
     loading,
     error,
-    subtasks,
-    subtask,
-    minitasks,
-    minitask,
-    getTasks,
-    getTask,
-    createTask,
-    updateTask,
+    fetchTasks,
+    addTask,
+    updateTaskStatus,
     deleteTask,
-    getSubtasksByTaskId,
-    createSubtask,
-    updateSubtask,
-    deleteSubtask,
   };
 });

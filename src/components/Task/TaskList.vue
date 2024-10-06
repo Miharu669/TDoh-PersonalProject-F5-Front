@@ -1,105 +1,105 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
-import TaskCard from './TaskCard.vue';
-import TaskModal from './TaskModal.vue';
-import SubtaskModal from './SubtaskModal.vue';
+// import { ref, onMounted } from 'vue';
+// import axios from 'axios';
+// import TaskCard from './TaskCard.vue';
+// import TaskModal from './TaskModal.vue';
+// import SubtaskModal from './SubtaskModal.vue';
 
-const tasks = ref([]);
-const loading = ref(false);
-const error = ref(null);
+// const tasks = ref([]);
+// const loading = ref(false);
+// const error = ref(null);
 
-const isTaskModalVisible = ref(false);
-const isSubtaskModalVisible = ref(false);
+// const isTaskModalVisible = ref(false);
+// const isSubtaskModalVisible = ref(false);
 
-const selectedTaskId = ref(null);
+// const selectedTaskId = ref(null);
 
-const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
+// const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
 
-const axiosInstance = axios.create({
-  baseURL: apiEndpoint,
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-  },
-});
+// const axiosInstance = axios.create({
+//   baseURL: apiEndpoint,
+//   headers: {
+//     'Content-Type': 'application/json',
+//     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+//   },
+// });
 
-const fetchTasks = async () => {
-  loading.value = true;
-  error.value = null;
-  try {
-    const response = await axiosInstance.get('/tasks');
-    tasks.value = response.data;
-  } catch (err) {
-    error.value = err.message || 'Error fetching tasks';
-  } finally {
-    loading.value = false;
-  }
-};
+// const fetchTasks = async () => {
+//   loading.value = true;
+//   error.value = null;
+//   try {
+//     const response = await axiosInstance.get('/tasks');
+//     tasks.value = response.data;
+//   } catch (err) {
+//     error.value = err.message || 'Error fetching tasks';
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 
-const markTaskComplete = async (task) => {
-  try {
-    await axiosInstance.put(`/tasks/${task.id}`, { ...task, isDone: !task.isDone });
-    task.isDone = !task.isDone;
-  } catch (err) {
-    console.error("Error updating task:", err);
-  }
-};
+// const markTaskComplete = async (task) => {
+//   try {
+//     await axiosInstance.put(`/tasks/${task.id}`, { ...task, isDone: !task.isDone });
+//     task.isDone = !task.isDone;
+//   } catch (err) {
+//     console.error("Error updating task:", err);
+//   }
+// };
 
-const markSubtaskComplete = async (subtask) => {
-  try {
-    await axiosInstance.put(`/subtasks/${subtask.id}`, { ...subtask, isDone: !subtask.isDone });
-    subtask.isDone = !subtask.isDone;
-  } catch (err) {
-    console.error("Error updating subtask:", err);
-  }
-};
+// const markSubtaskComplete = async (subtask) => {
+//   try {
+//     await axiosInstance.put(`/subtasks/${subtask.id}`, { ...subtask, isDone: !subtask.isDone });
+//     subtask.isDone = !subtask.isDone;
+//   } catch (err) {
+//     console.error("Error updating subtask:", err);
+//   }
+// };
 
-const addTask = async (newTask) => {
-  try {
-    const response = await axiosInstance.post('/tasks', newTask);
-    tasks.value.push(response.data);
-    closeTaskModal();
-  } catch (err) {
-    console.error("Error creating task:", err);
-  }
-};
+// const addTask = async (newTask) => {
+//   try {
+//     const response = await axiosInstance.post('/tasks', newTask);
+//     tasks.value.push(response.data);
+//     closeTaskModal();
+//   } catch (err) {
+//     console.error("Error creating task:", err);
+//   }
+// };
 
-const addSubtask = async (newSubtask) => {
-  try {
-    const response = await axiosInstance.post(`/subtasks`, { ...newSubtask, taskId: selectedTaskId.value });
+// const addSubtask = async (newSubtask) => {
+//   try {
+//     const response = await axiosInstance.post(`/subtasks`, { ...newSubtask, taskId: selectedTaskId.value });
     
-    const task = tasks.value.find(task => task.id === selectedTaskId.value);
-    if (task) {
-      task.subTasks.push(response.data);
-    }
+//     const task = tasks.value.find(task => task.id === selectedTaskId.value);
+//     if (task) {
+//       task.subTasks.push(response.data);
+//     }
 
-    closeSubtaskModal();
-  } catch (err) {
-    console.error("Error creating subtask:", err);
-  }
-};
+//     closeSubtaskModal();
+//   } catch (err) {
+//     console.error("Error creating subtask:", err);
+//   }
+// };
 
-const openTaskModal = () => {
-  isTaskModalVisible.value = true;
-};
+// const openTaskModal = () => {
+//   isTaskModalVisible.value = true;
+// };
 
-const closeTaskModal = () => {
-  isTaskModalVisible.value = false;
-};
+// const closeTaskModal = () => {
+//   isTaskModalVisible.value = false;
+// };
 
-const openSubtaskModal = (taskId) => {
-  selectedTaskId.value = taskId;  
-  isSubtaskModalVisible.value = true;
-};
+// const openSubtaskModal = (taskId) => {
+//   selectedTaskId.value = taskId;  
+//   isSubtaskModalVisible.value = true;
+// };
 
-const closeSubtaskModal = () => {
-  isSubtaskModalVisible.value = false;
-};
+// const closeSubtaskModal = () => {
+//   isSubtaskModalVisible.value = false;
+// };
 
-onMounted(() => {
-  fetchTasks();
-});
+// onMounted(() => {
+//   fetchTasks();
+// });
 </script>
 
 <template>
@@ -126,14 +126,15 @@ onMounted(() => {
     <SubtaskModal :isVisible="isSubtaskModalVisible" :onClose="closeSubtaskModal" :onAddSubtask="addSubtask" />
 
     <div v-if="tasks.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <TaskCard
-        v-for="task in tasks"
-        :key="task.id"
-        :task="task"
-        :markTaskComplete="markTaskComplete"
-        :addSubtask="openSubtaskModal" 
-        :markSubtaskComplete="markSubtaskComplete"
-      />
+      <TaskCard 
+  v-for="task in tasks" 
+  :key="task.id" 
+  :task="task"
+  @markTaskComplete="$emit('markTaskComplete', task.id, !task.isDone)"
+  @addSubtask="$emit('addSubtask', task.id)"
+  @markSubtaskComplete="$emit('markSubtaskComplete', $event)"
+/>
+
     </div>
     
     <div v-else class="text-center text-gray-500">No tasks available.</div>

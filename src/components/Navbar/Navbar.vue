@@ -47,7 +47,7 @@ const isAuthenticated = computed(() => store.user.isAuthenticated);
         <button
           v-if="isAuthenticated"
           @click="logout.logout"
-          class="text-white bg-gradient-to-b from-quaternary to-quinary hover:from-quinary hover:to-quaternary px-4 py-2 rounded-full"
+          class="bg-orange-500 hover:bg-orange-400 text-white font-bold py-2 px-4 border-b-4 border-orange-700 hover:border-orange-500 rounded"
         >
           Logout
         </button>
@@ -73,8 +73,8 @@ const isAuthenticated = computed(() => store.user.isAuthenticated);
       <button
         v-if="isAuthenticated"
         @click="logout.logout"
-        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-      >
+        class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded">
+        >
         Logout
       </button>
     </div>

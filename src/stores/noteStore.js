@@ -40,6 +40,7 @@ export const useNotesStore = defineStore('notes', () => {
   const notes = ref([]);  
   const loading = ref(false);  
   const error = ref(null);  
+  
   const fetchNotes = async () => {
     loading.value = true;
     error.value = null;

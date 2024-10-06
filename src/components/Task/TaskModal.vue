@@ -1,66 +1,131 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { defineProps } from 'vue';
+import { ref, watch, onMounted } from "vue";
 
 const props = defineProps({
-  isVisible: {
+  initialTitle: {
+    type: String,
+    default: "",
+  },
+  initialDescription: {
+    type: String,
+    default: "",
+  },
+  isEditMode: {
     type: Boolean,
-    required: true,
-  },
-  onClose: {
-    type: Function,
-    required: true,
-  },
-  onAddTask: {
-    type: Function,
-    required: true,
+    default: false,
   },
 });
 
-const newTask = ref({
-  title: '',
-  description: '',
-});
+const emit = defineEmits(["submit", "close"]);
 
-const submitForm = () => {
-  props.onAddTask(newTask.value);
-  newTask.value = { title: '', description: '' };
-};
+const title = ref(props.initialTitle);
+const description = ref(props.initialDescription);
 
-const closeModal = () => {
-  props.onClose();
-};
-
-const handleBackdropClick = (event) => {
-  if (event.target.classList.contains('backdrop')) {
-    closeModal();
+function submitTask() {
+  if (title.value.trim() && description.value.trim()) {
+    const taskData = {
+      title: title.value.trim(),
+      description: description.value.trim(),
+    };
+    emit("submit", taskData);
+    resetForm();
   }
-};
-</script>
+}
 
+function closeModal() {
+  resetForm();
+  emit("close");
+}
+
+function resetForm() {
+  title.value = "";
+  description.value = "";
+}
+
+watch(
+  () => [props.initialTitle, props.initialDescription],
+  ([newTitle, newDescription]) => {
+    title.value = newTitle;
+    description.value = newDescription;
+  }
+);
+
+onMounted(() => {
+  // Focus on the modal content for accessibility
+  document.querySelector(".bg-white").focus();
+});
+</script>
 <template>
-  <div v-if="isVisible" class="fixed inset-0 flex items-center justify-center z-50 backdrop" @click="handleBackdropClick">
-    <div class="fixed inset-0 bg-black opacity-50"></div>
-    <div class="bg-yellow-200 rounded-lg shadow-lg p-6 max-w-md w-full z-10">
-      <h2 class="text-2xl font-bold mb-4">Add New Task</h2>
-      <form @submit.prevent="submitForm">
+  <div class="fixed inset-0 flex items-center justify-center z-50">
+    <div
+      class="fixed inset-0 bg-gray-900 bg-opacity-75"
+      @click.self="closeModal"
+    ></div>
+
+    <div
+      class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative"
+      @keydown.esc="closeModal"
+      tabindex="0"
+    >
+      <button
+        @click="closeModal"
+        class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-2xl focus:outline-none"
+      >
+        &times;
+      </button>
+
+      <h2 class="text-2xl font-semibold text-cyan-600 text-center mb-6">
+        {{ isEditMode ? "Edit Task" : "Add New Task" }}
+      </h2>
+
+      <form @submit.prevent="submitTask">
         <div class="mb-4">
-          <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-          <input type="text" id="title" v-model="newTask.title" required
-            class="mt-1 block w-full bg-yellow-100 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+            Title
+          </label>
+          <input
+            v-model="title"
+            type="text"
+            id="title"
+            class="w-full bg-gray-100 px-3 py-2 border rounded shadow-sm focus:outline-none focus:border-cyan-500"
+            placeholder="Enter task title"
+            required
+          />
         </div>
-        <div class="mb-4">
-          <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-          <textarea id="description" v-model="newTask.description" required rows="3"
-            class="mt-1 block w-full bg-yellow-100 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"></textarea>
+
+        <div class="mb-6">
+          <label
+            class="block text-gray-700 text-sm font-bold mb-2"
+            for="description"
+          >
+            Description
+          </label>
+          <textarea
+            v-model="description"
+            id="description"
+            class="w-full px-3 bg-gray-100 py-2 border rounded shadow-sm focus:outline-none focus:border-cyan-500"
+            rows="4"
+            placeholder="Enter task description"
+            required
+          ></textarea>
         </div>
-        <div class="flex justify-end">
-          <button type="button" @click="closeModal" class="mr-2 text-gray-500 hover:text-gray-700">Cancel</button>
-          <button type="submit" class="bg-teal-400 text-white px-4 py-2 rounded-md hover:bg-teal-300">Add Task</button>
+
+        <div class="flex justify-center space-x-4">
+          <button
+            type="submit"
+            class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-full focus:outline-none"
+          >
+            {{ isEditMode ? "Update Task" : "Add Task" }}
+          </button>
+          <button
+            type="button"
+            @click="closeModal"
+            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-full focus:outline-none"
+          >
+            Close
+          </button>
         </div>
       </form>
     </div>
   </div>
 </template>
-
-
