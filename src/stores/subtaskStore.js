@@ -15,8 +15,7 @@ const axiosInstance = axios.create({
 const setAuthHeader = () => {
   const authStore = useAuthStore();  
   const token = authStore.user?.access_token;  
-  console.log('authStore.user:', authStore.user);
-  console.log('token:', token);
+
   if (token) {
     return { 'Authorization': 'Bearer ' + token };
   } else {
