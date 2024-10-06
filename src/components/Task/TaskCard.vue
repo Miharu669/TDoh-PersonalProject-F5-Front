@@ -1,3 +1,51 @@
+<script setup>
+import { defineProps, defineEmits } from "vue";
+
+const props = defineProps({
+  task: {
+    type: Object,
+    required: true,
+  },
+});
+
+const emit = defineEmits([
+  "toggle-task-status",
+  "edit-task",
+  "delete-task",
+  "add-subtask",
+  "edit-subtask",
+  "toggle-subtask-status",
+  "delete-subtask",
+]);
+
+const toggleTaskStatus = () => {
+  emit("toggle-task-status", props.task);
+};
+
+const openAddSubtaskModal = () => {
+  emit("add-subtask", props.task);
+};
+
+const editSubtask = (subtask) => {
+  emit("edit-subtask", subtask, props.task);
+};
+
+const toggleSubtaskStatus = (subtask) => {
+  emit("toggle-subtask-status", subtask, props.task.id);
+};
+
+const editTask = () => {
+  emit("edit-task", props.task);
+};
+
+const deleteTask = () => {
+  emit("delete-task", props.task.id);
+};
+
+const deleteSubtask = (subtaskId) => {
+  emit("delete-subtask", subtaskId, props.task.id);
+};
+</script>
 <template>
   <div
     class="bg-yellow-200 shadow-md rounded-lg overflow-hidden transform transition duration-300 hover:shadow-xl"
@@ -11,6 +59,7 @@
         >
           {{ task.title }}
         </h2>
+
         <div class="flex space-x-2">
           <button @click="editTask" class="text-blue-500 hover:text-blue-700">
             <i class="fas fa-edit"></i>
@@ -53,9 +102,20 @@
             >
               {{ subtask.title }}
             </h4>
-            <button @click="deleteSubtask(subtask.id)" class="text-red-500 hover:text-red-700">
-              <i class="fas fa-trash"></i>
-            </button>
+            <div class="flex space-x-2">
+              <button
+                @click="editSubtask(subtask)"
+                class="text-blue-500 hover:text-blue-700"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                @click="deleteSubtask(subtask.id)"
+                class="text-red-500 hover:text-red-700"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
           </div>
           <p
             class="text-gray-600 cursor-pointer mt-1"
@@ -69,50 +129,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { defineProps, defineEmits } from "vue";
-
-const props = defineProps({
-  task: {
-    type: Object,
-    required: true,
-  },
-});
-
-const emit = defineEmits([
-  "toggle-task-status",
-  "edit-task",
-  "delete-task",
-  "add-subtask",
-  "toggle-subtask-status",
-  "delete-subtask",
-]);
-
-const toggleTaskStatus = () => {
-  emit("toggle-task-status", props.task);
-};
-
-const openAddSubtaskModal = () => {
-  emit("add-subtask", props.task.id);
-};
-
-const toggleSubtaskStatus = (subtask) => {
-  emit("toggle-subtask-status", subtask);
-};
-
-const editTask = () => {
-  emit("edit-task", props.task);
-};
-
-const deleteTask = () => {
-  emit("delete-task", props.task.id);
-};
-
-const deleteSubtask = (subtaskId) => {
-  emit("delete-subtask", subtaskId);
-};
-</script>
 
 <style scoped>
 .line-through {

@@ -21,13 +21,13 @@ const emit = defineEmits(["submit", "close"]);
 const title = ref(props.initialTitle);
 const description = ref(props.initialDescription);
 
-function submitTask() {
+function submitSubtask() {
   if (title.value.trim() && description.value.trim()) {
-    const taskData = {
+    const subtaskData = {
       title: title.value.trim(),
       description: description.value.trim(),
     };
-    emit("submit", taskData);
+    emit("submit", subtaskData);
     resetForm();
   }
 }
@@ -74,10 +74,10 @@ onMounted(() => {
       </button>
 
       <h2 class="text-2xl font-semibold text-cyan-600 text-center mb-6">
-        {{ isEditMode ? "Edit Task" : "Add New Task" }}
+        {{ isEditMode ? "Edit Subtask" : "Add New Subtask" }}
       </h2>
 
-      <form @submit.prevent="submitTask">
+      <form @submit.prevent="submitSubtask">
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
             Title
@@ -87,7 +87,7 @@ onMounted(() => {
             type="text"
             id="title"
             class="w-full bg-gray-100 px-3 py-2 border rounded shadow-sm focus:outline-none focus:border-cyan-500"
-            placeholder="Enter task title"
+            placeholder="Enter subtask title"
             required
           />
         </div>
@@ -104,7 +104,7 @@ onMounted(() => {
             id="description"
             class="w-full px-3 bg-gray-100 py-2 border rounded shadow-sm focus:outline-none focus:border-cyan-500"
             rows="4"
-            placeholder="Enter task description"
+            placeholder="Enter subtask description"
             required
           ></textarea>
         </div>
@@ -114,7 +114,7 @@ onMounted(() => {
             type="submit"
             class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-full focus:outline-none"
           >
-            {{ isEditMode ? "Update Task" : "Add Task" }}
+            {{ isEditMode ? "Update Subtask" : "Add Subtask" }}
           </button>
           <button
             type="button"
