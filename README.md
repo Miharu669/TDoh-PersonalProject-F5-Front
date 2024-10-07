@@ -23,7 +23,7 @@ This project is the frontend for TDoH and connects to the backend built with Spr
 ### Prerequisites
 
 Make sure you have the following installed on your machine:
-- [Node.js](https://nodejs.org/) (v14 or later)
+- [Node.js](https://nodejs.org/) 
 - [npm](https://www.npmjs.com/)
 - [Vue CLI](https://cli.vuejs.org/)
 
