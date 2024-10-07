@@ -72,6 +72,23 @@ export const useSubTasksStore = defineStore('subtasks', () => {
       loading.value = false;
     }
   };
+  const updateSubTask = async (id, title, description) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const headers = setAuthHeader();
+      const response = await axiosInstance.put(`/${id}`, { title, description }, { headers });
+      const index = subtasks.value.findIndex(subtask => subtask.id === id);
+      if (index !== -1) {
+        subtasks.value[index] = response.data; 
+      }
+    } catch (err) {
+      handleError(err, error);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const updateSubTaskStatus = async (id, isDone) => {
     loading.value = true;
@@ -110,6 +127,7 @@ export const useSubTasksStore = defineStore('subtasks', () => {
     error,
     fetchSubTasks,
     addSubTask,
+    updateSubTask,
     updateSubTaskStatus,
     deleteSubTask,
   };

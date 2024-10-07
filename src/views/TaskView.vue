@@ -1,12 +1,14 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useTasksStore } from "@/stores/taskStore";
+import { useSubTasksStore } from "@/stores/subtaskStore";
 import { storeToRefs } from "pinia";
 import TaskCard from "@/components/Task/TaskCard.vue";
 import TaskModal from "@/components/Task/TaskModal.vue";
 import SubtaskModal from "@/components/Task/SubtaskModal.vue";
 
 const tasksStore = useTasksStore();
+const subTasksStore = useSubTasksStore();
 const { tasks, loading, error } = storeToRefs(tasksStore);
 
 const isTaskModalVisible = ref(false);
@@ -106,14 +108,14 @@ function openEditSubtaskModal(subtask, task) {
 async function submitSubtask(subtaskData) {
   try {
     if (isSubtaskEditMode.value && currentSubtask.value.id) {
-      await tasksStore.updateSubtask(
+      await subTasksStore.updateSubTask(
         currentSubtask.value.taskId,
         currentSubtask.value.id,
         subtaskData.title,
         subtaskData.description
       );
     } else {
-      await tasksStore.addSubtask(
+      await subTasksStore.addSubTask(
         currentSubtask.value.taskId,
         subtaskData.title,
         subtaskData.description
@@ -124,6 +126,7 @@ async function submitSubtask(subtaskData) {
     console.error("Failed to save subtask:", err);
   }
 }
+
 
 function closeSubtaskModal() {
   isSubtaskModalVisible.value = false;
@@ -144,7 +147,7 @@ async function toggleSubtaskStatus(subtask, taskId) {
 
 async function deleteSubtask(subtaskId, taskId) {
   try {
-    await tasksStore.deleteSubtask(taskId, subtaskId);
+    await subTasksStore.deleteSubTask(subtaskId);
   } catch (err) {
     console.error("Failed to delete subtask:", err);
   }
