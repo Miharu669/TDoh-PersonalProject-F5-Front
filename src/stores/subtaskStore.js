@@ -47,8 +47,7 @@ export const useSubTasksStore = defineStore('subtasks', () => {
     error.value = null;
     try {
       const headers = setAuthHeader();
-      console.log('Authorization Headers:', headers);
-      const response = await axiosInstance.get(`?taskId=${taskId}`, { headers });
+      const response = await axiosInstance.get(`/tasks/${taskId}`, { headers });
       subtasks.value = response.data;
     } catch (err) {
       handleError(err, error);
@@ -107,6 +106,19 @@ export const useSubTasksStore = defineStore('subtasks', () => {
     }
   };
 
+  async function fetchAndUpdateTaskSubtasks(taskId) {
+    try {
+      const headers = setAuthHeader();
+      const response = await axiosInstance.get(`/tasks/${taskId}/subtasks`, { headers });
+      const taskIndex = tasksStore.tasks.findIndex(task => task.id === taskId);
+      if (taskIndex !== -1) {
+        tasksStore.tasks[taskIndex].subTasks = response.data;
+      }
+    } catch (err) {
+      console.error("Failed to fetch subtasks:", err);
+    }
+  }
+
   const deleteSubTask = async (id) => {
     loading.value = true;
     error.value = null;
@@ -129,6 +141,7 @@ export const useSubTasksStore = defineStore('subtasks', () => {
     addSubTask,
     updateSubTask,
     updateSubTaskStatus,
+    fetchAndUpdateTaskSubtasks,
     deleteSubTask,
   };
 });

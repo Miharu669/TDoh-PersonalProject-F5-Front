@@ -11,7 +11,6 @@ export const useCalendarStore = defineStore('calendar', () => {
   const authStore = useAuthStore();  
 
   const apiEndpoint = import.meta.env.VITE_API_ENDPOINT + '/events';
-  console.log('API Endpoint:', apiEndpoint);
 
   const axiosInstance = axios.create({
     baseURL: apiEndpoint,
@@ -61,7 +60,6 @@ export const useCalendarStore = defineStore('calendar', () => {
 
  
   const getEventsByDate = async (date) => {
-    console.log(`getEventsByDate called for date: ${date}`);
     loading.value = true;
     error.value = null;
     try {

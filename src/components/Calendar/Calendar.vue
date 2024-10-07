@@ -1,6 +1,147 @@
+    <script setup>
+    import { ref, computed, onMounted } from 'vue';
+    import CalendarModal from './CalendarModal.vue'; 
+    import { useCalendarStore } from '@/stores/calendar'; 
+    import { useAuthStore } from '@/stores/auth';  
+    
+    const calendarStore = useCalendarStore(); 
+    const authStore = useAuthStore(); 
+    
+    const today = new Date();
+    const currentYear = ref(today.getFullYear());
+    const currentMonth = ref(today.getMonth());
+    
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    const monthName = computed(() => monthNames[currentMonth.value]);
+    
+    const daysInMonth = computed(() => {
+      const date = new Date(currentYear.value, currentMonth.value + 1, 0);
+      return Array.from({ length: date.getDate() }, (_, i) => i + 1);
+    });
+    
+    const blanks = computed(() => {
+      const firstDayOfMonth = new Date(currentYear.value, currentMonth.value, 1).getDay();
+      return Array.from({ length: firstDayOfMonth }, (_, i) => i);
+    });
+    
+    const formatDate = (year, month, day) => {
+      const mm = String(month).padStart(2, '0');
+      const dd = String(day).padStart(2, '0');
+      return `${year}-${mm}-${dd}`;
+    };
+    
+    const isToday = (day) => {
+      return day === today.getDate() && currentMonth.value === today.getMonth() && currentYear.value === today.getFullYear();
+    };
+    
+    const isModalVisible = ref(false);
+    const selectedDate = ref(''); 
+    
+    const prevMonth = () => {
+      if (currentMonth.value === 0) {
+        currentMonth.value = 11;
+        currentYear.value--;
+      } else {
+        currentMonth.value--;
+      }
+      fetchEventsForCurrentMonth();
+    };
+    
+    const nextMonth = () => {
+      if (currentMonth.value === 11) {
+        currentMonth.value = 0;
+        currentYear.value++;
+      } else {
+        currentMonth.value++;
+      }
+      fetchEventsForCurrentMonth();
+    };
+    
+    const openModal = (day) => {
+      selectedDate.value = formatDate(currentYear.value, currentMonth.value + 1, day);
+      isModalVisible.value = true; 
+    };
+    
+    const closeModal = () => {
+      isModalVisible.value = false; 
+    };
+    
+    const addEvent = async (eventName) => {
+      const dateKey = selectedDate.value;  
+      try {
+        await calendarStore.addEvent({ name: eventName, date: dateKey }); 
+        await calendarStore.getEventsByDate(dateKey);  
+      } catch (err) {
+        alert(calendarStore.error);
+      }
+    };
+    
+    const fetchAllEvents = async () => {
+      try {
+        await calendarStore.getAllEvents();
+      } catch (err) {
+        alert(calendarStore.error);
+      }
+    };
+    
+    const fetchEventsForCurrentMonth = async () => {
+      const firstDate = formatDate(currentYear.value, currentMonth.value + 1, 1);
+      try {
+        await calendarStore.getEventsByDate(firstDate);
+      } catch (err) {
+        console.error('Failed to fetch events for the current month:', err);
+      }
+    };
+    
+    const getEventsForDate = (day) => {
+      const dateKey = formatDate(currentYear.value, currentMonth.value + 1, day);
+    
+      if (!calendarStore.events || !Array.isArray(calendarStore.events)) {
+        return [];
+      }
+    
+      return calendarStore.events.filter(event => event.date === dateKey);
+    };
+    
+    const deleteEventsForDate = async (date) => {
+      if (confirm(`Are you sure you want to delete all events on ${date}?`)) {
+        try {
+          await calendarStore.deleteEventsByDate(date);
+          await calendarStore.getEventsByDate(date);
+        } catch (err) {
+          alert(calendarStore.error);
+        }
+      }
+    };
+    
+    const deleteEvent = async (id) => {
+      if (confirm('Are you sure you want to delete this event?')) {
+        try {
+          await calendarStore.deleteEvent(id);
+        } catch (err) {
+          alert(calendarStore.error);
+        }
+      }
+    };
+    
+    onMounted(() => {
+      const defaultDate = formatDate(currentYear.value, currentMonth.value + 1, today.getDate());
+      if (authStore.user && authStore.user.access_token) {
+        calendarStore.getEventsByDate(defaultDate);
+      } else {
+        console.error('Cannot fetch events. User not authenticated.');
+      }
+    });
+    </script>
+    
+
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen">
-    <div class="w-10/12 p-6 bg-yellow-100 rounded-lg shadow-lg border border-yellow-300">
+  <div class="flex flex-col items-center justify-center ">
+    <div class="w-10/12 p-6 bg-yellow-100 rounded-lg  border border-yellow-300">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-3xl font-bold text-teal-400">{{ monthName }} {{ currentYear }}</h2>
         <div>
@@ -24,12 +165,12 @@
       </div>
 
       <div class="grid grid-cols-7">
-        <div v-for="blank in blanks" :key="blank" class="h-20"></div>
+        <div v-for="blank in blanks" :key="blank" class="h-32"></div>
 
         <div 
           v-for="day in daysInMonth" 
           :key="day" 
-          class="flex flex-col items-center justify-center h-20 border border-amber-200 rounded-lg transition duration-300 cursor-pointer hover:bg-teal-200" 
+          class="flex flex-col items-center justify-center h-32 w-38 border border-amber-200 rounded-lg transition duration-300 cursor-pointer hover:bg-teal-200" 
           :class="{'bg-teal-500 text-white font-bold': isToday(day)}"
           @click="openModal(day)"
         >
@@ -52,7 +193,7 @@
             class="mt-1 text-red-500 hover:text-red-700 text-xs flex items-center"
             title="Delete all events on this day"
           >
-            <i class="fas fa-trash-alt mr-1"></i> Delete All
+            <i class="fas fa-trash-alt mr-1"></i>
           </button>
         </div>
       </div>
@@ -64,7 +205,7 @@
       <div class="mt-6 flex justify-center">
         <button 
           @click="fetchAllEvents" 
-          class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center"
+          class="bg-cyan-500 text-white px-4 py-2 rounded-md hover:bg-cyan-600 flex items-center"
         >
           <i class="fas fa-calendar-alt mr-2"></i> Fetch All Events
         </button>
@@ -76,7 +217,7 @@
           <li 
             v-for="event in calendarStore.events" 
             :key="event.id" 
-            class="bg-white p-4 rounded shadow flex justify-between items-center"
+            class="bg-yellow-50 p-4 rounded shadow flex justify-between items-center"
           >
             <div>
               <h4 class="font-bold text-lg">{{ event.name }}</h4>
@@ -84,7 +225,7 @@
             </div>
             <button 
               @click="deleteEvent(event.id)" 
-              class="text-red-500 hover:text-red-700"
+              class="text-gray-500 hover:text-red-700"
               title="Delete Event"
             >
               <i class="fas fa-trash-alt"></i>
@@ -100,158 +241,6 @@
       @close="closeModal" 
       @add-event="addEvent"
     />
-  </div>
+  </div>    
 </template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import CalendarModal from './CalendarModal.vue'; 
-import { useCalendarStore } from '@/stores/calendar'; 
-import { useAuthStore } from '@/stores/auth';  
-
-const calendarStore = useCalendarStore(); 
-const authStore = useAuthStore(); 
-
-const today = new Date();
-const currentYear = ref(today.getFullYear());
-const currentMonth = ref(today.getMonth());
-
-const monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const monthName = computed(() => monthNames[currentMonth.value]);
-
-const daysInMonth = computed(() => {
-  const date = new Date(currentYear.value, currentMonth.value + 1, 0);
-  return Array.from({ length: date.getDate() }, (_, i) => i + 1);
-});
-
-const blanks = computed(() => {
-  const firstDayOfMonth = new Date(currentYear.value, currentMonth.value, 1).getDay();
-  return Array.from({ length: firstDayOfMonth }, (_, i) => i);
-});
-
-const formatDate = (year, month, day) => {
-  const mm = String(month).padStart(2, '0');
-  const dd = String(day).padStart(2, '0');
-  return `${year}-${mm}-${dd}`;
-};
-
-const isToday = (day) => {
-  return day === today.getDate() && currentMonth.value === today.getMonth() && currentYear.value === today.getFullYear();
-};
-
-const isModalVisible = ref(false);
-const selectedDate = ref(''); 
-
-const prevMonth = () => {
-  if (currentMonth.value === 0) {
-    currentMonth.value = 11;
-    currentYear.value--;
-  } else {
-    currentMonth.value--;
-  }
-  fetchEventsForCurrentMonth();
-};
-
-const nextMonth = () => {
-  if (currentMonth.value === 11) {
-    currentMonth.value = 0;
-    currentYear.value++;
-  } else {
-    currentMonth.value++;
-  }
-  fetchEventsForCurrentMonth();
-};
-
-const openModal = (day) => {
-  selectedDate.value = formatDate(currentYear.value, currentMonth.value + 1, day);
-  isModalVisible.value = true; 
-};
-
-const closeModal = () => {
-  isModalVisible.value = false; 
-};
-
-const addEvent = async (eventName) => {
-  const dateKey = selectedDate.value;  
-  try {
-    await calendarStore.addEvent({ name: eventName, date: dateKey }); 
-    await calendarStore.getEventsByDate(dateKey);  
-    console.log('Event added successfully');
-  } catch (err) {
-    console.error('Failed to add event:', err);
-    alert(calendarStore.error);
-  }
-};
-
-const fetchAllEvents = async () => {
-  try {
-    await calendarStore.getAllEvents();
-    console.log('All events fetched successfully');
-  } catch (err) {
-    console.error('Failed to fetch all events:', err);
-    alert(calendarStore.error);
-  }
-};
-
-const fetchEventsForCurrentMonth = async () => {
-  const firstDate = formatDate(currentYear.value, currentMonth.value + 1, 1);
-  try {
-    await calendarStore.getEventsByDate(firstDate);
-  } catch (err) {
-    console.error('Failed to fetch events for the current month:', err);
-  }
-};
-
-const getEventsForDate = (day) => {
-  const dateKey = formatDate(currentYear.value, currentMonth.value + 1, day);
-
-  if (!calendarStore.events || !Array.isArray(calendarStore.events)) {
-    console.warn('Events data is undefined or not an array:', calendarStore.events);
-    return [];
-  }
-
-  return calendarStore.events.filter(event => event.date === dateKey);
-};
-
-const deleteEventsForDate = async (date) => {
-  if (confirm(`Are you sure you want to delete all events on ${date}?`)) {
-    try {
-      await calendarStore.deleteEventsByDate(date);
-      console.log(`All events on ${date} have been deleted.`);
-      await calendarStore.getEventsByDate(date);
-    } catch (err) {
-      console.error('Failed to delete events by date:', err);
-      alert(calendarStore.error);
-    }
-  }
-};
-
-const deleteEvent = async (id) => {
-  if (confirm('Are you sure you want to delete this event?')) {
-    try {
-      await calendarStore.deleteEvent(id);
-      console.log(`Event with ID ${id} has been deleted.`);
-    } catch (err) {
-      console.error('Failed to delete event:', err);
-      alert(calendarStore.error);
-    }
-  }
-};
-
-onMounted(() => {
-  const defaultDate = formatDate(currentYear.value, currentMonth.value + 1, today.getDate());
-  console.log('Fetching events for date:', defaultDate);
-  if (authStore.user && authStore.user.access_token) {
-    calendarStore.getEventsByDate(defaultDate);
-    console.log('getEventsByDate called.');
-  } else {
-    console.error('Cannot fetch events. User not authenticated.');
-  }
-});
-</script>
-
 

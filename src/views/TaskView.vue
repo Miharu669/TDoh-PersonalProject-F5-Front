@@ -9,7 +9,8 @@ import SubtaskModal from "@/components/Task/SubtaskModal.vue";
 
 const tasksStore = useTasksStore();
 const subTasksStore = useSubTasksStore();
-const { tasks, loading, error } = storeToRefs(tasksStore);
+const { tasks } = storeToRefs(tasksStore);
+const { subtasks } = storeToRefs(subTasksStore);
 
 const isTaskModalVisible = ref(false);
 const isEditMode = ref(false);
@@ -109,7 +110,6 @@ async function submitSubtask(subtaskData) {
   try {
     if (isSubtaskEditMode.value && currentSubtask.value.id) {
       await subTasksStore.updateSubTask(
-        currentSubtask.value.taskId,
         currentSubtask.value.id,
         subtaskData.title,
         subtaskData.description
@@ -127,13 +127,6 @@ async function submitSubtask(subtaskData) {
   }
 }
 
-
-function closeSubtaskModal() {
-  isSubtaskModalVisible.value = false;
-  isSubtaskEditMode.value = false;
-  currentSubtask.value = { id: null, title: "", description: "", taskId: null };
-}
-
 async function toggleSubtaskStatus(subtask, taskId) {
   const originalStatus = subtask.isDone;
   subtask.isDone = !originalStatus;
@@ -145,7 +138,7 @@ async function toggleSubtaskStatus(subtask, taskId) {
   }
 }
 
-async function deleteSubtask(subtaskId, taskId) {
+async function deleteSubtask(subtaskId) {
   try {
     await subTasksStore.deleteSubTask(subtaskId);
   } catch (err) {
@@ -153,14 +146,21 @@ async function deleteSubtask(subtaskId, taskId) {
   }
 }
 
+function closeSubtaskModal() {
+  isSubtaskModalVisible.value = false;
+  isSubtaskEditMode.value = false;
+  currentSubtask.value = { id: null, title: "", description: "", taskId: null };
+}
+
 onMounted(() => {
   tasksStore.fetchTasks();
+  subTasksStore.fetchSubTasks();
 });
 </script>
 <template>
   <div class="tasks-container px-4 py-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">My Tasks</h1>
+      <h1 class="text-3xl font-bold text-white">My Tasks</h1>
       <button
         @click="openAddTaskModal"
         class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-full"

@@ -1,5 +1,7 @@
 <script setup>
-import {  defineEmits } from "vue";
+import {  computed, defineEmits, onMounted } from "vue";
+import { useSubTasksStore } from "@/stores/subtaskStore";
+import { storeToRefs } from "pinia";
 
 const props = defineProps({
   task: {
@@ -17,6 +19,15 @@ const emit = defineEmits([
   "toggle-subtask-status",
   "delete-subtask",
 ]);
+
+const subtaskStore = useSubTasksStore();
+const { subtasks } = storeToRefs(subtaskStore);
+
+const taskSubtasks = computed(() => {
+  return subtasks.value.filter(subtask => subtask.taskId === props.task.id);
+});
+
+
 
 const toggleTaskStatus = () => {
   emit("toggle-task-status", props.task);
@@ -45,6 +56,10 @@ const deleteTask = () => {
 const deleteSubtask = (subtaskId) => {
   emit("delete-subtask", subtaskId, props.task.id);
 };
+
+onMounted(() => {
+  subtaskStore.fetchSubTasks(props.task.id);
+});
 </script>
 <template>
   <div

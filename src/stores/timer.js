@@ -1,21 +1,23 @@
 import { defineStore } from 'pinia';
-import { ref, watch, onUnmounted } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 
 export const useTimerStore = defineStore('timer', () => {
-  const workDuration = ref(25 * 60); 
-  const breakDuration = ref(5 * 60); 
+  const workDuration = ref(25 * 60);
+  const breakDuration = ref(5 * 60);
 
-  const isBreak = ref(JSON.parse(localStorage.getItem('isBreak')) || false);
-  const time = ref(
-    JSON.parse(localStorage.getItem('time')) || workDuration.value
-  );
-  const isRunning = ref(JSON.parse(localStorage.getItem('isRunning')) || false);
+  const _isBreak = ref(JSON.parse(localStorage.getItem('isBreak')) || false);
+  const _time = ref(JSON.parse(localStorage.getItem('time')) || workDuration.value);
+  const _isRunning = ref(JSON.parse(localStorage.getItem('isRunning')) || false);
   const timer = ref(null);
   const notificationPermission = ref('default');
 
-  watch(isBreak, (newVal) => localStorage.setItem('isBreak', JSON.stringify(newVal)));
-  watch(time, (newVal) => localStorage.setItem('time', JSON.stringify(newVal)));
-  watch(isRunning, (newVal) => localStorage.setItem('isRunning', JSON.stringify(newVal)));
+  const isBreak = computed(() => _isBreak.value);
+  const time = computed(() => _time.value);
+  const isRunning = computed(() => _isRunning.value);
+
+  watch(_isBreak, (newVal) => localStorage.setItem('isBreak', JSON.stringify(newVal)));
+  watch(_time, (newVal) => localStorage.setItem('time', JSON.stringify(newVal)));
+  watch(_isRunning, (newVal) => localStorage.setItem('isRunning', JSON.stringify(newVal)));
 
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) {
@@ -30,49 +32,50 @@ export const useTimerStore = defineStore('timer', () => {
     }
   };
 
-  const sendNotification = (title, options) => {
+  const sendNotification = async (title, options) => {
     if (Notification.permission === "granted") {
       try {
-        new Notification(title, options);
+        await new Notification(title, options);
       } catch (error) {
         console.error("Error creating notification:", error);
       }
     }
   };
 
-  const startTimer = () => {
+  const startTimer = async () => {
     if (timer.value || time.value <= 0 || isRunning.value) {
       return;
     }
-    isRunning.value = true;
+    _isRunning.value = true;
 
-    const endTime = Date.now() + time.value * 1000;
+    const endTime = Date.now() + _time.value * 1000;
 
     timer.value = setInterval(() => {
       const remaining = Math.round((endTime - Date.now()) / 1000);
       if (remaining >= 0) {
-        time.value = remaining;
+        _time.value = remaining;
       } else {
         clearInterval(timer.value);
         timer.value = null;
-        isRunning.value = false;
+        _isRunning.value = false;
 
-        if (isBreak.value) {
-          time.value = breakDuration.value;
-          isBreak.value = false;
+        if (_isBreak.value) {
+          _time.value = breakDuration.value;
+          _isBreak.value = false;
           sendNotification("Break time is over!", {
             body: "Time to get back to work!",
           });
         } else {
-          time.value = workDuration.value;
-          isBreak.value = true;
+          _time.value = workDuration.value;
+          _isBreak.value = true;
           sendNotification("Work session completed!", {
             body: "Time for a break!",
           });
         }
       }
     }, 1000);
-  };
+};
+
 
   const pauseTimer = () => {
     if (!isRunning.value) {
@@ -80,15 +83,15 @@ export const useTimerStore = defineStore('timer', () => {
     }
     clearInterval(timer.value);
     timer.value = null;
-    isRunning.value = false;
+    _isRunning.value = false;
   };
 
   const resetTimer = () => {
     clearInterval(timer.value);
     timer.value = null;
-    isRunning.value = false;
-    isBreak.value = false;
-    time.value = workDuration.value; 
+    _isRunning.value = false;
+    _isBreak.value = false;
+    _time.value = workDuration.value;
   };
 
   onUnmounted(() => {
@@ -102,6 +105,6 @@ export const useTimerStore = defineStore('timer', () => {
     startTimer,
     pauseTimer,
     resetTimer,
-    requestNotificationPermission, 
+    requestNotificationPermission,
   };
 });
