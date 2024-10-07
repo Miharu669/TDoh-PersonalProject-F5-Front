@@ -35,20 +35,7 @@ cd TDoH
 
 ```
 
-TDoH/
-│
-├── src/
-│   ├── assets/              # Static assets (images, icons, etc.)
-│   ├── components/          # Reusable Vue components
-│   ├── views/               # Page-level components
-│   ├── stores/               # Pinia stores for state management
-│   ├── router/              # Vue Router for navigation
-│   ├── App.vue              # Root component
-│   └── main.js              # Entry point
-│
-├── public/                  # Public files (index.html, etc.)
-├── package.json             # Project dependencies and scripts
-└── README.md                # Project documentation
+![Structure](4307f09698f7ed86f6759ff3839f906b.png)
 
 
 ## Features
@@ -96,6 +83,7 @@ VITE_API_ENDPOINT=http://localhost:8080/api/v1
 
 
 Feel free to open an issue if you encounter something not listed here.
+```
 
 ## Future improvements
 Some planned features or improvements:
